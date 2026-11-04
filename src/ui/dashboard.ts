@@ -450,7 +450,7 @@ export function renderDashboardHtml(): string {
           <div class="viewport-outer-container">
             <div id="heatmapCanvasContainer" class="heatmap-canvas-container">
               <div id="heatmapViewportWrapper" class="heatmap-viewport-wrapper">
-                <iframe id="previewIframe" title="Page Preview" sandbox="allow-same-origin allow-scripts"></iframe>
+                <iframe id="previewIframe" title="Page Preview"></iframe>
                 <canvas id="heatmapCanvas"></canvas>
                 <div id="heatmapTooltip" class="heatmap-tooltip"></div>
                 <div id="heatmapSuppressionOverlay" class="heatmap-suppression-overlay">
@@ -1065,7 +1065,7 @@ export function renderDashboardHtml(): string {
         if (!targetOrigin.startsWith('http://') && !targetOrigin.startsWith('https://')) {
           targetOrigin = 'https://' + targetOrigin;
         }
-        targetOrigin = targetOrigin.replace(/\/+$/, '');
+        while (targetOrigin.endsWith('/')) targetOrigin = targetOrigin.slice(0, -1);
         const cleanPath = path.startsWith('/') ? path : '/' + path;
         const fullTargetUrl = targetOrigin + cleanPath;
 
@@ -1336,7 +1336,7 @@ export function renderDashboardHtml(): string {
           if (!targetOrigin.startsWith('http://') && !targetOrigin.startsWith('https://')) {
             targetOrigin = 'https://' + targetOrigin;
           }
-          targetOrigin = targetOrigin.replace(/\/+$/, '');
+          while (targetOrigin.endsWith('/')) targetOrigin = targetOrigin.slice(0, -1);
           const cleanPath = selectedHeatmapPath.startsWith('/') ? selectedHeatmapPath : '/' + selectedHeatmapPath;
           loadIframePreview(targetOrigin + cleanPath, selectedHeatmapPath);
         }
