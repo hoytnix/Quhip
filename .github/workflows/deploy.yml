@@ -78,9 +78,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     # Only runs when Cloudflare API credentials are configured in repository secrets
-    if: env.HAS_CF_SECRET == 'true'
-    env:
-      HAS_CF_SECRET: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

@@ -22,6 +22,7 @@
   - Configured Quhip dogfood tracking snippet (`data-site="qhp_quhip_www"`).
 - **Automated Push-to-Deploy CI/CD Pipeline Configured**:
   - Added `.github/workflows/deploy.yml` triggering on every push to `main`.
+  - Fixed workflow job-level condition using direct GitHub Actions context expression `${{ secrets.CLOUDFLARE_API_TOKEN != '' }}` (resolving invalid `env` reference on job-level `if`).
   - Runs full test suite and builds snippet.
   - Deploys `www` to GitHub Pages automatically with zero credentials.
   - Deploys Quhip Worker API to Cloudflare Workers and `www` to Cloudflare Pages when repository secrets (`CLOUDFLARE_API_TOKEN`) are configured.
