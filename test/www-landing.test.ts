@@ -97,4 +97,16 @@ describe('WWW Landing Page & Squeeze Page Verification', () => {
     expect(html).toContain('data-site="qhp_quhip_www"');
     expect(html).toContain('src="/quhip.js"');
   });
+
+  it('contains interactive Cloudflare free tier and cost calculator synchronized with CTR calculator', () => {
+    const html = fs.readFileSync(indexPath, 'utf-8');
+    expect(html).toContain('id="cost-calculator"');
+    expect(html).toContain('id="costTrafficSlider"');
+    expect(html).toContain('id="costTierBadge"');
+    expect(html).toContain('id="costTotalDisplay"');
+    expect(html).toContain('syncTrafficFromCost');
+    expect(html).toContain('syncTrafficFromCtr');
+    expect(html).toContain('calculateCloudflareCost');
+    expect(html).toContain('Do You Qualify for Cloudflare\'s Free Tier?');
+  });
 });

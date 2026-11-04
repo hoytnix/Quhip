@@ -545,6 +545,64 @@
       padding: 36px;
       margin-top: 60px;
     }
+    .cost-calc-section {
+      margin-top: 50px;
+      margin-bottom: 20px;
+    }
+    .cost-calc-section .calculator-box {
+      margin-top: 0;
+      background: linear-gradient(180deg, rgba(24, 24, 29, 0.7) 0%, rgba(17, 17, 21, 0.95) 100%);
+      border: 1px solid var(--border-bright);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    .calc-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      margin-bottom: 12px;
+    }
+    .calc-status-pill.free {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .calc-status-pill.paid {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .calc-pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .calc-cost-display {
+      font-size: 38px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      line-height: 1.1;
+      letter-spacing: -1px;
+    }
+    .calc-cost-display.free {
+      color: var(--accent-emerald);
+    }
+    .calc-cost-display.paid {
+      color: var(--accent-blue);
+    }
+    .calc-breakdown-tag {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
     .calculator-header {
       text-align: center;
       max-width: 600px;
@@ -1004,6 +1062,7 @@
       </a>
       <ul class="nav-links">
         <li><a href="#problem">The Problem</a></li>
+        <li><a href="#cost-calculator">Cost Calculator</a></li>
         <li><a href="#solution">How It Works</a></li>
         <li><a href="#calculator">CTR Calculator</a></li>
         <li><a href="#transformation">Compare</a></li>
@@ -1158,6 +1217,79 @@
           <span class="agitate-impact">Legal Liability</span>
         </div>
       </div>
+
+      <!-- CLOUDFLARE TIER & COST CALCULATOR -->
+      <div class="cost-calc-section" id="cost-calculator">
+        <div class="calculator-box">
+          <div class="calculator-header">
+            <span class="badge badge-emerald">Edge Infrastructure Cost Estimator</span>
+            <h3 style="font-size: 24px; font-weight: 700; margin: 12px 0 6px;">Do You Qualify for Cloudflare's Free Tier?</h3>
+            <p style="font-size: 14px; color: var(--text-muted);">
+              Quhip runs on your own Cloudflare account. Cloudflare Workers provides <strong>100,000 free requests per day</strong> (~3,000,000 requests/month). Estimate your monthly cost with zero markup.
+            </p>
+          </div>
+
+          <div class="calc-grid">
+            <div class="calc-controls">
+              <div class="calc-control">
+                <label>
+                  <span>Monthly Traffic (Pageviews / Requests):</span>
+                  <strong id="costTrafficVal" style="color:var(--accent-blue)">10,000</strong>
+                </label>
+                <input type="range" id="costTrafficSlider" min="1000" max="15000000" step="5000" value="10000" oninput="syncTrafficFromCost(this.value)">
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); margin-top:4px;">
+                  <span>1k/mo</span>
+                  <span>Free Tier Cap (3M/mo)</span>
+                  <span>15M/mo</span>
+                </div>
+              </div>
+
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                <div style="font-weight: 600; color: #fff; margin-bottom: 6px; display:flex; align-items:center; gap:6px;">
+                  <svg class="icon" style="color:var(--accent-amber);"><use href="#icon-zap"/></svg> Cloudflare Pricing Structure
+                </div>
+                • <strong>Free Tier:</strong> 100k requests/day (~3M/month), 5M D1 reads/day, 100k D1 writes/day, 5 GB storage = <strong>$0.00/mo</strong>.<br>
+                • <strong>Workers Paid:</strong> $5/month base (includes 10M requests, 25B D1 reads, 50M D1 writes). Extra requests are just $0.30 per million.
+              </div>
+            </div>
+
+            <div class="calc-results">
+              <div class="calc-result-row">
+                <div>
+                  <div class="calc-metric-name">Cloudflare Tier Status</div>
+                  <div id="costTierStatusDesc" style="font-size: 12px; color: var(--text-dim)">Under daily free allowance</div>
+                </div>
+                <div>
+                  <span id="costTierBadge" class="calc-status-pill free">
+                    <span class="calc-pill-dot"></span>
+                    <span id="costTierBadgeText">100% Free Plan</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="calc-result-row">
+                <div>
+                  <div class="calc-metric-name">Estimated Cloudflare Bill</div>
+                  <div id="costBreakdownText" style="font-size: 11px; color: var(--text-dim)">Included in Cloudflare Free Tier</div>
+                </div>
+                <div class="calc-cost-display free" id="costTotalDisplay">$0<span style="font-size:15px; font-weight:500; color:var(--text-muted);">/mo</span></div>
+              </div>
+
+              <div class="calc-result-row">
+                <div>
+                  <div class="calc-metric-name">Legacy Analytics SaaS Cost</div>
+                  <div style="font-size: 11px; color: var(--text-dim)">(Fathom / Plausible / Hotjar)</div>
+                </div>
+                <div class="calc-metric-val ga4" id="costCompetitorPrice">$14 - $49/mo</div>
+              </div>
+
+              <div id="costVerdictBanner" style="font-size: 13px; color: var(--accent-emerald); line-height: 1.5; padding-top: 6px;">
+                <svg class="icon" style="color:var(--accent-emerald);"><use href="#icon-bulb"/></svg> <strong>You qualify for $0/mo hosting!</strong> Cloudflare's free quota easily handles your traffic with zero hosting or analytics charges.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1239,7 +1371,7 @@
                 <span>Monthly Pageviews:</span>
                 <strong id="calcVisitorsVal" style="color:var(--accent-blue)">10,000</strong>
               </label>
-              <input type="range" id="calcVisitors" min="1000" max="100000" step="1000" value="10000" oninput="updateCalculator()">
+              <input type="range" id="calcVisitors" min="1000" max="15000000" step="5000" value="10000" oninput="syncTrafficFromCtr(this.value)">
             </div>
 
             <div class="calc-control">
@@ -1582,9 +1714,137 @@
       }
     }
 
+    // Cloudflare Tier & Cost Calculator Logic
+    const CF_FREE_MONTHLY_LIMIT = 3000000; // 100k requests/day * 30 days
+    const CF_PAID_BASE_FEE = 5; // $5/mo includes 10M requests
+    const CF_PAID_BASE_LIMIT = 10000000;
+    const CF_OVERAGE_PER_MILLION = 0.30;
+
+    function calculateCloudflareCost(monthlyTraffic) {
+      const traffic = Math.max(0, monthlyTraffic);
+      const qualifiesFree = traffic <= CF_FREE_MONTHLY_LIMIT;
+
+      let estimatedCost = 0;
+      let costBreakdown = "Included in Cloudflare Free Tier";
+      let competitorCost = "$14/mo";
+
+      if (qualifiesFree) {
+        estimatedCost = 0;
+        costBreakdown = `Within 100k/day limit (${Math.round(traffic / 30).toLocaleString()}/day)`;
+        if (traffic > 1000000) {
+          competitorCost = "$19 - $49/mo";
+        } else if (traffic > 100000) {
+          competitorCost = "$14 - $29/mo";
+        } else {
+          competitorCost = "$9 - $14/mo";
+        }
+      } else {
+        // Exceeds free tier -> Workers Paid
+        estimatedCost = CF_PAID_BASE_FEE;
+        if (traffic > CF_PAID_BASE_LIMIT) {
+          const extraRequests = traffic - CF_PAID_BASE_LIMIT;
+          const overage = (extraRequests / 1000000) * CF_OVERAGE_PER_MILLION;
+          estimatedCost += overage;
+          costBreakdown = `$5 base (10M reqs) + $${overage.toFixed(2)} (${(extraRequests / 1000000).toFixed(1)}M overage @ $0.30/M)`;
+        } else {
+          costBreakdown = "$5 base fee (includes up to 10M reqs/mo)";
+        }
+
+        if (traffic > 10000000) {
+          competitorCost = "$199 - $499+/mo";
+        } else if (traffic > 5000000) {
+          competitorCost = "$99 - $199/mo";
+        } else {
+          competitorCost = "$49 - $99/mo";
+        }
+      }
+
+      return {
+        traffic,
+        qualifiesFree,
+        estimatedCost,
+        costBreakdown,
+        competitorCost
+      };
+    }
+
+    function renderCostCalculator(monthlyTraffic) {
+      const res = calculateCloudflareCost(monthlyTraffic);
+      
+      const trafficValEl = document.getElementById("costTrafficVal");
+      const statusDescEl = document.getElementById("costTierStatusDesc");
+      const badgeEl = document.getElementById("costTierBadge");
+      const badgeTextEl = document.getElementById("costTierBadgeText");
+      const breakdownTextEl = document.getElementById("costBreakdownText");
+      const totalDisplayEl = document.getElementById("costTotalDisplay");
+      const competitorPriceEl = document.getElementById("costCompetitorPrice");
+      const verdictBannerEl = document.getElementById("costVerdictBanner");
+
+      if (trafficValEl) trafficValEl.textContent = res.traffic.toLocaleString();
+      if (breakdownTextEl) breakdownTextEl.textContent = res.costBreakdown;
+      if (competitorPriceEl) competitorPriceEl.textContent = res.competitorCost;
+
+      if (res.qualifiesFree) {
+        if (badgeEl) {
+          badgeEl.className = "calc-status-pill free";
+        }
+        if (badgeTextEl) badgeTextEl.textContent = "100% Free Plan";
+        if (statusDescEl) statusDescEl.textContent = `Under daily limit (~${Math.round(res.traffic / 30).toLocaleString()} req/day)`;
+        if (totalDisplayEl) {
+          totalDisplayEl.className = "calc-cost-display free";
+          totalDisplayEl.innerHTML = '$0<span style="font-size:15px; font-weight:500; color:var(--text-muted);">/mo</span>';
+        }
+        if (verdictBannerEl) {
+          verdictBannerEl.style.color = "var(--accent-emerald)";
+          verdictBannerEl.innerHTML = `<svg class="icon" style="color:var(--accent-emerald);"><use href="#icon-bulb"/></svg> <strong>You qualify for $0/mo hosting!</strong> Cloudflare's 100k requests/day free tier easily handles ${res.traffic.toLocaleString()} monthly pageviews.`;
+        }
+      } else {
+        if (badgeEl) {
+          badgeEl.className = "calc-status-pill paid";
+        }
+        if (badgeTextEl) badgeTextEl.textContent = "Workers Paid Plan";
+        if (statusDescEl) statusDescEl.textContent = `Exceeds 100k/day (~${Math.round(res.traffic / 30).toLocaleString()} req/day)`;
+        if (totalDisplayEl) {
+          totalDisplayEl.className = "calc-cost-display paid";
+          const costStr = res.estimatedCost % 1 === 0 ? res.estimatedCost.toFixed(0) : res.estimatedCost.toFixed(2);
+          totalDisplayEl.innerHTML = `$${costStr}<span style="font-size:15px; font-weight:500; color:var(--text-muted);">/mo</span>`;
+        }
+        if (verdictBannerEl) {
+          verdictBannerEl.style.color = "var(--accent-blue)";
+          verdictBannerEl.innerHTML = `<svg class="icon" style="color:var(--accent-blue);"><use href="#icon-bulb"/></svg> <strong>Cost: ~$${res.estimatedCost.toFixed(2)}/mo on Cloudflare Workers Paid.</strong> In comparison, third-party analytics SaaS charges ${res.competitorCost} for the same volume!`;
+        }
+      }
+    }
+
+    // Bidirectional Synchronization between Cost Calculator & CTR Calculator
+    function syncTrafficFromCost(val) {
+      const traffic = parseInt(val, 10);
+      renderCostCalculator(traffic);
+
+      // Sync with CTR Calculator
+      const ctrSlider = document.getElementById("calcVisitors");
+      if (ctrSlider) {
+        ctrSlider.value = traffic;
+        updateCalculator(traffic);
+      }
+    }
+
+    function syncTrafficFromCtr(val) {
+      const traffic = parseInt(val, 10);
+      updateCalculator(traffic);
+
+      // Sync with Cost Calculator
+      const costSlider = document.getElementById("costTrafficSlider");
+      if (costSlider) {
+        costSlider.value = traffic;
+        renderCostCalculator(traffic);
+      }
+    }
+
     // Interactive CTR Calculator
-    function updateCalculator() {
-      const visitors = parseInt(document.getElementById("calcVisitors").value, 10);
+    function updateCalculator(customVisitors) {
+      const ctrSlider = document.getElementById("calcVisitors");
+      const visitors = customVisitors !== undefined ? customVisitors : parseInt(ctrSlider.value, 10);
       const seenPct = parseInt(document.getElementById("calcSeenPct").value, 10);
       const clicks = parseInt(document.getElementById("calcClicks").value, 10);
 
@@ -1599,6 +1859,10 @@
       document.getElementById("calcLegacyCtr").textContent = legacyCtr + "%";
       document.getElementById("calcQuhipCtr").textContent = quhipCtr + "%";
     }
+
+    // Initialize both calculators on script run
+    renderCostCalculator(10000);
+    updateCalculator(10000);
 
     // Squeeze Form Handler
     function handleSqueezeSubmit(event, source) {

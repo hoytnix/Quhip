@@ -31,5 +31,12 @@
   - Replaced OS-dependent raw emoji characters across `www/index.html` with an inlined, lightweight SVG sprite bundle (`#icon-zap`, `#icon-globe`, `#icon-rocket`, `#icon-terminal`, `#icon-lock`, `#icon-cookie`, `#icon-timer`, `#icon-scale`, `#icon-stop`, `#icon-snail`, `#icon-mirror`, `#icon-bulb`, `#icon-chart`).
   - Guarantees 100% sharp and consistent visual rendering across all operating systems, Linux distros, and legacy browsers without requiring any system emoji TTF font.
 
+- **Interactive Cloudflare Free Tier & Cost Calculator Delivered in WWW Landing**:
+  - Embedded an edge infrastructure cost calculator in `www/index.html` positioned between "The Hidden Toll" (Agitation) and "Cookieless & Privacy-First Web Analytics / Story & Solution".
+  - Evaluates traffic thresholds against Cloudflare Workers Free Tier (100k requests/day, ~3M requests/month) and Workers Paid ($5/month base including 10M requests, +$0.30/million overage).
+  - Displays instant free tier eligibility indicator, calculated monthly hosting bill ($0 vs ~$5+), and competitor price comparison.
+  - Implemented bidirectional synchronization between the new Cost Calculator and the True Element CTR Calculator so users only enter their traffic figure once.
+  - Added unit test coverage in `test/www-landing.test.ts`.
+
 ## Next Focus
 - Monitor deployments, live telemetry, and subscriber leads.

@@ -27,8 +27,14 @@
   - Replaced all Unicode emojis with self-contained SVG symbols in an embedded sprite (`#icon-zap`, `#icon-globe`, `#icon-rocket`, `#icon-terminal`, `#icon-lock`, `#icon-cookie`, `#icon-timer`, `#icon-scale`, `#icon-stop`, `#icon-snail`, `#icon-mirror`, `#icon-bulb`, `#icon-chart`).
   - Zero TTF/font dependencies; renders perfectly on any OS/browser engine.
 
+- [x] Step 14: Interactive Cloudflare Free Tier & Cost Calculator in `www/index.html`:
+  - Positioned in between "The Hidden Toll" agitation section and the Solution section.
+  - Automatically assesses eligibility for Cloudflare's 100k req/day free tier ($0/mo) vs Workers Paid plan ($5/mo for up to 10M requests, +$0.30/M overage).
+  - Synchronizes slider values bidirectionally with the True Element CTR Calculator.
+  - Verified with automated tests in `test/www-landing.test.ts`.
+
 ## Verification Summary
-- **Test Suite**: 10 test suites, 32 tests passing (`pnpm test`).
+- **Test Suite**: 10 test suites, 33 tests passing (`pnpm test`).
 - **Snippet Bundle Size**: 4.18 KB gzipped (Budget: < 10 KB).
 - **Overhead**: ~0.82 ms execution latency per page load.
 - **Privacy Audit**: 0 cookie calls, 0 fingerprinting APIs, 0 IP columns, small-count suppression (< 5 sessions) enforced on all pages.
