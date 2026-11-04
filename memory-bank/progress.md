@@ -18,7 +18,7 @@
 - [x] Repository Hygiene: Sane `.gitignore`, Kopimi LICENSE, Cloudflare Workers deploy badge, remote origin configured and pushed to GitHub (`hoytnix/Quhip:main`).
 
 ## Verification Summary
-- **Test Suite**: 9 test suites, 25 tests passing (`pnpm test`).
+- **Test Suite**: 9 test suites, 26 tests passing (`pnpm test`).
 - **Snippet Bundle Size**: 4.18 KB gzipped (Budget: < 10 KB).
 - **Overhead**: ~0.82 ms execution latency per page load.
 - **Privacy Audit**: 0 cookie calls, 0 fingerprinting APIs, 0 IP columns, small-count suppression (< 5 sessions) enforced on all pages.
