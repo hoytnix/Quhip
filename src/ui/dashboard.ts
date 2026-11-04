@@ -1063,7 +1063,11 @@ export function renderDashboardHtml(): string {
         const domain = heatRes.domain || (site ? site.domain : '') || currentHeatmapDomain;
         let targetOrigin = domain;
         if (!targetOrigin.startsWith('http://') && !targetOrigin.startsWith('https://')) {
-          targetOrigin = 'https://' + targetOrigin;
+          if (targetOrigin.startsWith('localhost') || targetOrigin.startsWith('127.0.0.1')) {
+            targetOrigin = 'http://' + targetOrigin;
+          } else {
+            targetOrigin = 'https://' + targetOrigin;
+          }
         }
         while (targetOrigin.endsWith('/')) targetOrigin = targetOrigin.slice(0, -1);
         const cleanPath = path.startsWith('/') ? path : '/' + path;
@@ -1334,7 +1338,11 @@ export function renderDashboardHtml(): string {
           const domain = (site ? site.domain : '') || currentHeatmapDomain;
           let targetOrigin = domain;
           if (!targetOrigin.startsWith('http://') && !targetOrigin.startsWith('https://')) {
-            targetOrigin = 'https://' + targetOrigin;
+            if (targetOrigin.startsWith('localhost') || targetOrigin.startsWith('127.0.0.1')) {
+              targetOrigin = 'http://' + targetOrigin;
+            } else {
+              targetOrigin = 'https://' + targetOrigin;
+            }
           }
           while (targetOrigin.endsWith('/')) targetOrigin = targetOrigin.slice(0, -1);
           const cleanPath = selectedHeatmapPath.startsWith('/') ? selectedHeatmapPath : '/' + selectedHeatmapPath;

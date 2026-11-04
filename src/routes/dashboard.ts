@@ -476,7 +476,11 @@ dashboardRouter.get('/api/dashboard/preview', async (c) => {
 
   let targetOrigin = (site.domain || '').trim();
   if (!targetOrigin.startsWith('http://') && !targetOrigin.startsWith('https://')) {
-    targetOrigin = 'https://' + targetOrigin;
+    if (targetOrigin.startsWith('localhost') || targetOrigin.startsWith('127.0.0.1')) {
+      targetOrigin = 'http://' + targetOrigin;
+    } else {
+      targetOrigin = 'https://' + targetOrigin;
+    }
   }
   targetOrigin = targetOrigin.replace(/\/+$/, '');
   const cleanPath = path.startsWith('/') ? path : '/' + path;

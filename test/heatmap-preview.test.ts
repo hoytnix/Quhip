@@ -200,4 +200,32 @@ describe('Per-Page Heatmaps & Live Preview Verification (§7, §8)', () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it('GET /api/dashboard/preview targets http:// instead of https:// for localhost and 127.0.0.1', async () => {
+    const localSiteId = 'site_local_5173';
+    await db.prepare(
+      `INSERT INTO sites (id, name, domain, site_key, owner_id, timezone, consent_banner_enabled, created_at)
+       VALUES (?, 'Local App', 'localhost:5173', 'qhp_local_key', ?, 'UTC', 0, ?)`
+    ).bind(localSiteId, ownerId, new Date().toISOString()).run();
+
+    let fetchedUrl = '';
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string) => {
+      fetchedUrl = url;
+      return new Response('<html><head></head><body>Hello Local</body></html>', {
+        status: 200,
+        headers: { 'Content-Type': 'text/html' }
+      });
+    });
+
+    try {
+      const res = await app.request(`/api/dashboard/preview?site_id=${localSiteId}&path=/&token=${token}`, {}, { DB: db });
+      expect(res.status).toBe(200);
+      expect(fetchedUrl).toBe('http://localhost:5173/');
+      const html = await res.text();
+      expect(html).toContain('<base href="http://localhost:5173/">');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
