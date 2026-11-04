@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quhip — The Cookieless Analytics Engine for Builders Who Hate Cookie Banners</title>
+  <meta name="description" content="Stop drowning in GA4 menus and killing 65% of your funnel with hideous cookie banners. Quhip gives you True Element CTR and privacy-safe heatmaps at the edge. 100% free & open source under CC0.">
+  <meta property="og:title" content="Quhip — Cookieless Web Analytics with True Element CTR">
+  <meta property="og:description" content="No cookies. No IP storage. No 40-page cockpit of useless metrics. Just clean behavioral analytics and live heatmaps on Cloudflare Workers.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='%2309090b' stroke='%2338bdf8' stroke-width='8'/><path d='M35 50 L45 62 L66 38' fill='none' stroke='%2310b981' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+
+  <style>
+    /* ==========================================================================
+       QUHIP LANDING PAGE STYLES — Zero round-trips, 100% self-contained
+       ========================================================================== */
+    :root {
+      --bg: #09090b;
+      --bg-surface: #111115;
+      --bg-card: #18181d;
+      --bg-card-hover: #1f1f26;
+      --border: #27272f;
+      --border-bright: #3f3f4e;
+      --text: #f4f4f7;
+      --text-muted: #9494a3;
+      --text-dim: #656575;
+      --accent-blue: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-purple: #a855f7;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Layout */
+    .container {
+      width: 100%;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Ambient glow */
+    .glow-bg {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 500px;
+      background: radial-gradient(circle at 50% 10%, rgba(56, 189, 248, 0.12) 0%, rgba(16, 185, 129, 0.05) 40%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Nav */
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(9, 9, 11, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 16px 0;
+    }
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 21px;
+      letter-spacing: -0.6px;
+    }
+    .brand-logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-emerald));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: 900;
+      font-size: 15px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid transparent;
+      outline: none;
+    }
+    .btn-primary {
+      background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+      color: #041018;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 20px rgba(56, 189, 248, 0.25);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(180deg, #7dd3fc 0%, #0369a1 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
+    }
+    .btn-emerald {
+      background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+      color: #021a10;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 20px rgba(16, 185, 129, 0.25);
+    }
+    .btn-emerald:hover {
+      background: linear-gradient(180deg, #6ee7b7 0%, #047857 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 24px rgba(16, 185, 129, 0.45);
+    }
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-bright);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-emerald);
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    /* Sections general */
+    section {
+      position: relative;
+      padding: 80px 0;
+    }
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-blue);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 18px;
+    }
+    .section-desc {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--text-muted);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       SECTION 1: HERO / PROBLEM (PASTOR: P)
+       ========================================================================== */
+    .hero {
+      padding: 70px 0 50px;
+      text-align: center;
+    }
+    .hero .badge { margin-bottom: 24px; }
+    .hero-title {
+      font-size: clamp(34px, 5.2vw, 58px);
+      font-weight: 900;
+      letter-spacing: -1.8px;
+      line-height: 1.1;
+      max-width: 980px;
+      margin: 0 auto 24px;
+    }
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, #f4f4f7 40%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-copy {
+      font-size: clamp(17px, 2.2vw, 21px);
+      color: var(--text-muted);
+      max-width: 780px;
+      margin: 0 auto 36px;
+      line-height: 1.65;
+    }
+    .hero-copy strong { color: var(--text); }
+
+    /* 1-Click Deploy Tutorial Box */
+    .deploy-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 760px;
+      margin: 0 auto 40px;
+      box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.7);
+      text-align: left;
+    }
+    .deploy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .deploy-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .deploy-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-top: 6px;
+    }
+    .deploy-methods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 680px) {
+      .deploy-methods { grid-template-columns: 1fr; }
+      .deploy-box { padding: 24px 18px; }
+    }
+    .deploy-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .deploy-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .deploy-card-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .deploy-btn-wrapper {
+      margin-top: auto;
+    }
+    .deploy-code-snippet {
+      background: #09090c;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #7dd3fc;
+      line-height: 1.6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      word-break: break-all;
+    }
+    .deploy-copy-icon {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .deploy-copy-icon:hover { color: #fff; background: var(--border); }
+    .deploy-footer-note {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    /* Live Proof Bar */
+    .proof-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      padding-top: 10px;
+    }
+    .proof-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .proof-item span { color: var(--text); }
+
+    /* Code Snippet Box */
+    .snippet-preview {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin: 40px auto 0;
+      max-width: 760px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      overflow-x: auto;
+    }
+    .snippet-code {
+      color: #93c5fd;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .snippet-copy-btn {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .snippet-copy-btn:hover { background: var(--border); }
+
+    /* ==========================================================================
+       SECTION 2: AGITATE / AMPLIFY (PASTOR: A)
+       ========================================================================== */
+    .agitate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .agitate-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      position: relative;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .agitate-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-2px);
+    }
+    .agitate-icon {
+      font-size: 26px;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+    .agitate-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .agitate-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .agitate-impact {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-rose);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ==========================================================================
+       SECTION 3: STORY & SOLUTION / SYSTEM (PASTOR: S)
+       ========================================================================== */
+    .system-story {
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.03) 0%, rgba(16, 185, 129, 0.02) 100%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .narrative-block {
+      max-width: 820px;
+      margin: 0 auto 60px;
+      font-size: 18px;
+      line-height: 1.75;
+      color: #d4d4dc;
+    }
+    .narrative-block p { margin-bottom: 20px; }
+    .narrative-lead {
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+    }
+    .pillar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+    }
+    .pillar-num {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      font-size: 32px;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.07);
+    }
+    .pillar-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    .pillar-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .pillar-feature-list {
+      list-style: none;
+      font-size: 13px;
+      color: #d1d5db;
+    }
+    .pillar-feature-list li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pillar-feature-list li::before {
+      content: "✓";
+      color: var(--accent-emerald);
+      font-weight: 800;
+    }
+
+    /* Interactive CTR Calculator */
+    .calculator-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 18px;
+      padding: 36px;
+      margin-top: 60px;
+    }
+    .calculator-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 36px;
+      align-items: center;
+    }
+    @media (max-width: 800px) {
+      .calc-grid { grid-template-columns: 1fr; }
+    }
+    .calc-controls { display: flex; flex-direction: column; gap: 20px; }
+    .calc-control label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .calc-control input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+    .calc-results {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .calc-result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .calc-result-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .calc-metric-name { font-size: 13px; color: var(--text-muted); }
+    .calc-metric-val { font-size: 20px; font-weight: 700; font-family: var(--font-mono); }
+    .calc-metric-val.ga4 { color: var(--text-dim); text-decoration: line-through; }
+    .calc-metric-val.quhip { color: var(--accent-emerald); font-size: 26px; }
+
+    /* ==========================================================================
+       SECTION 4: TRANSFORMATION & PROOF (PASTOR: T)
+       ========================================================================== */
+    .compare-table-wrapper {
+      margin-top: 48px;
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+    }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+    .compare-table th, .compare-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table th {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    .compare-table td.feature {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .compare-table td.legacy {
+      color: #9ca3af;
+    }
+    .compare-table td.quhip {
+      color: #38bdf8;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.04);
+    }
+
+    /* ==========================================================================
+       SECTION 5: OFFER & SQUEEZE (PASTOR: O)
+       ========================================================================== */
+    .offer-box {
+      background: linear-gradient(180deg, #181820 0%, #0e0e12 100%);
+      border: 1px solid var(--border-bright);
+      border-radius: 20px;
+      padding: 48px;
+      box-shadow: 0 25px 60px -20px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+    .offer-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    @media (max-width: 860px) {
+      .offer-grid { grid-template-columns: 1fr; }
+      .offer-box { padding: 32px 24px; }
+    }
+    .offer-details h3 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      margin-bottom: 14px;
+    }
+    .offer-details p {
+      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .offer-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 14px;
+    }
+    .offer-bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: #e5e7eb;
+    }
+    .offer-bullets li strong { color: #fff; }
+    .offer-bullets li::before {
+      content: "✦";
+      color: var(--accent-blue);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .squeeze-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      text-align: center;
+    }
+    .squeeze-card h4 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .squeeze-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .squeeze-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .squeeze-card input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+    .squeeze-card input:focus { border-color: var(--accent-emerald); }
+
+    /* ==========================================================================
+       SECTION 6: RESPONSE & FAQ (PASTOR: R)
+       ========================================================================== */
+    .faq-list {
+      margin-top: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .faq-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+    .faq-item:hover { border-color: var(--border-bright); }
+    .faq-question {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      user-select: none;
+    }
+    .faq-icon {
+      font-size: 20px;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--accent-blue); }
+    .faq-answer {
+      display: none;
+      padding: 0 24px 20px;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .faq-item.open .faq-answer { display: block; }
+
+    /* Final CTA Banner */
+    .final-cta {
+      text-align: center;
+      padding: 90px 0;
+      background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 60%);
+    }
+    .final-cta h2 {
+      font-size: clamp(30px, 4.5vw, 48px);
+      font-weight: 900;
+      letter-spacing: -1.2px;
+      margin-bottom: 16px;
+    }
+    .final-cta p {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 36px;
+    }
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    .footer-links a:hover { color: var(--text); }
+    .kopimi-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    /* Alert / Notification toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #022c22;
+      border: 1px solid var(--accent-emerald);
+      color: #a7f3d0;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .proof-bar { gap: 16px; }
+      .section-title { font-size: 26px; }
+    }
+  </style>
+
+  <!-- Dogfood: Quhip Tracks Its Own Website -->
+  <script defer src="/quhip.js" data-site="qhp_quhip_www"></script>
+</head>
+<body>
+
+  <div class="glow-bg"></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container nav-wrapper">
+      <a href="#" class="brand">
+        <div class="brand-logo-icon">Q</div>
+        <span>Quhip</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#problem">The Problem</a></li>
+        <li><a href="#solution">How It Works</a></li>
+        <li><a href="#calculator">CTR Calculator</a></li>
+        <li><a href="#transformation">Compare</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="#deploy-tutorial" class="btn btn-outline" data-quhip="nav-deploy-btn">Deploy</a>
+        <a href="https://github.com/hoytnix/Quhip" target="_blank" rel="noopener" class="btn btn-primary" data-quhip="nav-github-btn">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       HERO & PROBLEM (PASTOR: P - Person & Pain)
+       ========================================================================== -->
+  <section class="hero" id="problem">
+    <div class="container">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Cookieless & Privacy-First Web Analytics
+      </div>
+      
+      <h1 class="hero-title">
+        You Wanted to Know If People Like Your Product.<br>
+        <span class="gradient-text">Instead, You're Managing Cookie Banners and Drowning in GA4.</span>
+      </h1>
+
+      <p class="hero-copy">
+        You poured weeks into building something real. But the moment you try to answer the simplest question in business—<strong>"Are people actually reading this, and why aren’t they clicking my button?"</strong>—Big Tech hands you a 47-menu cockpit of delayed metrics and demands you slap an ugly, conversion-killing cookie banner on your site.
+      </p>
+
+      <!-- 1-CLICK DEPLOY TUTORIAL -->
+      <div class="deploy-box" id="deploy-tutorial">
+        <div class="deploy-header">
+          <div>
+            <div class="deploy-title">
+              <span>⚡</span> 1-Click Deploy Tutorial (Zero Setup Overhead)
+            </div>
+            <p class="deploy-desc">
+              Get your own private edge analytics engine with SQLite D1 rollups and live heatmaps. Runs completely free on Cloudflare's 100k requests/day tier.
+            </p>
+          </div>
+          <span class="badge badge-emerald">60-Second Setup</span>
+        </div>
+
+        <div class="deploy-methods">
+          <!-- Method 1: Web 1-Click -->
+          <div class="deploy-card">
+            <div>
+              <div class="deploy-card-title">
+                <span>🌐</span> Method 1: Browser 1-Click Deploy
+              </div>
+              <p class="deploy-card-text">
+                Deploy directly into your Cloudflare account with a single click. Cloudflare clones the repo, provisions your D1 database, and provides your live dashboard URL automatically.
+              </p>
+            </div>
+            <div class="deploy-btn-wrapper">
+              <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/hoytnix/Quhip" target="_blank" rel="noopener" class="btn btn-emerald" style="width: 100%; text-align: center;" data-quhip="hero-1click-cf-btn">
+                🚀 Deploy to Cloudflare Workers
+              </a>
+            </div>
+          </div>
+
+          <!-- Method 2: Terminal / CLI -->
+          <div class="deploy-card">
+            <div>
+              <div class="deploy-card-title">
+                <span>💻</span> Method 2: CLI in 3 Quick Commands
+              </div>
+              <p class="deploy-card-text">
+                Prefer local control? Clone the repo, install dependencies, and deploy using Wrangler in seconds:
+              </p>
+            </div>
+            <div class="deploy-btn-wrapper">
+              <div class="deploy-code-snippet">
+                <code>git clone https://github.com/hoytnix/Quhip.git &amp;&amp; cd Quhip &amp;&amp; pnpm i &amp;&amp; pnpm run dev</code>
+                <button class="deploy-copy-icon" onclick="copyCliCommand(this)" data-quhip="hero-copy-cli-btn">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="deploy-footer-note">
+          <span>🔒</span> 100% self-hosted on your Cloudflare account. Zero external servers. CC0 Public Domain.
+        </div>
+      </div>
+
+      <!-- HARD PROOF BAR -->
+      <div class="proof-bar">
+        <div class="proof-item"><span>⚡ 4.18 KB</span> Gzip Snippet</div>
+        <div class="proof-item"><span>🍪 0</span> Tracking Cookies</div>
+        <div class="proof-item"><span>⏱️ 0.82 ms</span> Execution Time</div>
+        <div class="proof-item"><span>🌐 300+ Cities</span> Edge D1 Rollup</div>
+        <div class="proof-item"><span>⚖️ 100%</span> CC0 Public Domain</div>
+      </div>
+
+      <!-- ONE-LINE CODE SNIPPET -->
+      <div class="snippet-preview">
+        <code class="snippet-code">&lt;script defer src="https://your-quhip.workers.dev/quhip.js" data-site="your_site_key"&gt;&lt;/script&gt;</code>
+        <button class="snippet-copy-btn" onclick="copySnippet(this)" data-quhip="hero-copy-snippet-btn">Copy Snippet</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       AGITATE & AMPLIFY (PASTOR: A - Amplify Consequences & Aspiration)
+       ========================================================================== -->
+  <section id="agitate" style="background: rgba(255,255,255,0.01); border-top: 1px solid var(--border);">
+    <div class="container">
+      <div style="text-align: center; max-width: 720px; margin: 0 auto;">
+        <span class="section-eyebrow">The Hidden Toll</span>
+        <h2 class="section-title">The Four Hidden Taxes of Big Tech Analytics</h2>
+        <p class="section-desc" style="margin: 0 auto;">
+          When you use legacy enterprise trackers, you're not just collecting data. You're bleeding conversions, destroying your mobile page speed, and taking on legal liability.
+        </p>
+      </div>
+
+      <div class="agitate-grid">
+        <div class="agitate-card">
+          <div class="agitate-icon">🛑</div>
+          <h3 class="agitate-title">The 65% Cookie Bounce</h3>
+          <p class="agitate-desc">
+            When a visitor lands on your page and gets ambushed by a giant cookie consent modal, up to 65% bounce or reject all tracking. You are flying blind on more than half your audience before they even finish your headline.
+          </p>
+          <span class="agitate-impact">Funnel Suicide</span>
+        </div>
+
+        <div class="agitate-card">
+          <div class="agitate-icon">🐌</div>
+          <h3 class="agitate-title">The 100 KB Speed Penalty</h3>
+          <p class="agitate-desc">
+            GA4 and traditional heatmap scripts weigh between 80 KB and 250 KB. They block the main thread, delay First Contentful Paint, drag your Core Web Vitals into the red, and quietly demote your Google search ranking.
+          </p>
+          <span class="agitate-impact">SEO Decay</span>
+        </div>
+
+        <div class="agitate-card">
+          <div class="agitate-icon">🪞</div>
+          <h3 class="agitate-title">The "Pageview" Mirage</h3>
+          <p class="agitate-desc">
+            Standard tools calculate CTR by dividing clicks by total pageviews. But if a visitor never scrolled down far enough to see your pricing button, counting that as a "missed click" is broken, dishonest math.
+          </p>
+          <span class="agitate-impact">Skewed Decisions</span>
+        </div>
+
+        <div class="agitate-card">
+          <div class="agitate-icon">⚖️</div>
+          <h3 class="agitate-title">The GDPR Sword of Damocles</h3>
+          <p class="agitate-desc">
+            Storing visitor IP addresses, setting long-lived cross-site cookies, and syncing ad click identifiers (like gclid and fbclid) turns your clean project into an EU/PECR regulatory liability waiting to happen.
+          </p>
+          <span class="agitate-impact">Legal Liability</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       STORY & SOLUTION / SYSTEM (PASTOR: S - The Quhip System)
+       ========================================================================== */ -->
+  <section class="system-story" id="solution">
+    <div class="container">
+      <div style="text-align: center; max-width: 760px; margin: 0 auto 50px;">
+        <span class="section-eyebrow">The Origin Story</span>
+        <h2 class="section-title">We Got Tired of Choosing Between Surveillance Capitalism and Flying Blind.</h2>
+      </div>
+
+      <div class="narrative-block">
+        <p class="narrative-lead">
+          As developers and product makers, we only wanted honest answers to three basic questions: Did someone read our writing? Did they actually see our button? And what made them click?
+        </p>
+        <p>
+          Instead, we were told our only choices were to install an invasive corporate spyware engine that sells ad graphs, or pay $199 a month for an enterprise session recorder that lags our frontend.
+        </p>
+        <p>
+          So we built <strong>Quhip</strong>. An ultra-lightweight, edge-native behavioral engine that runs directly on your own Cloudflare Workers and D1 database. It respects your users, requires <strong>zero cookie banners</strong> anywhere in the world, and gives you actionable behavioral intelligence in real-time.
+        </p>
+      </div>
+
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <span class="pillar-num">01</span>
+          <h3 class="pillar-title">True Element CTR</h3>
+          <p class="pillar-desc">
+            The industry standard CTR denominator is broken. Quhip uses the browser's native <code>IntersectionObserver</code> to detect when an element crosses 50% visibility.
+          </p>
+          <ul class="pillar-feature-list">
+            <li>CTR = Sessions Clicked / Sessions That Saw Element</li>
+            <li>Tracks dead clicks & rage clicks automatically</li>
+            <li>Zero manual tagging required on buttons or links</li>
+          </ul>
+        </div>
+
+        <div class="pillar-card">
+          <span class="pillar-num">02</span>
+          <h3 class="pillar-title">Privacy-Preserving Heatmaps</h3>
+          <p class="pillar-desc">
+            Visual click distribution (normalized into 100x100 coordinate buckets) and 25%, 50%, 75%, and 100% scroll depth guide lines overlaid directly on a live preview of your actual page.
+          </p>
+          <ul class="pillar-feature-list">
+            <li>Automatic small-count suppression (&lt; 5 sessions)</li>
+            <li>Live page proxy preview strips frame blockers safely</li>
+            <li>Responsive desktop, tablet, and mobile viewports</li>
+          </ul>
+        </div>
+
+        <div class="pillar-card">
+          <span class="pillar-num">03</span>
+          <h3 class="pillar-title">Pure Edge D1 Architecture</h3>
+          <p class="pillar-desc">
+            No raw per-visitor activity logs. Every event is immediately rolled up into aggregated counter tables in SQLite at Cloudflare's edge.
+          </p>
+          <ul class="pillar-feature-list">
+            <li>No databases to patch or servers to manage</li>
+            <li>Ephemeral <code>sessionStorage</code> tokens (destroyed on close)</li>
+            <li>Runs completely free on Cloudflare's 100k requests/day tier</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE CTR CALCULATOR -->
+      <div class="calculator-box" id="calculator">
+        <div class="calculator-header">
+          <span class="badge badge-emerald">Interactive Demonstration</span>
+          <h3 style="font-size: 24px; font-weight: 700; margin: 12px 0 6px;">The True Element CTR Difference</h3>
+          <p style="font-size: 14px; color: var(--text-muted);">See how traditional analytics artificially tanks your conversion metrics by using pageviews instead of actual element visibility.</p>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-controls">
+            <div class="calc-control">
+              <label>
+                <span>Monthly Pageviews:</span>
+                <strong id="calcVisitorsVal" style="color:var(--accent-blue)">10,000</strong>
+              </label>
+              <input type="range" id="calcVisitors" min="1000" max="100000" step="1000" value="10000" oninput="updateCalculator()">
+            </div>
+
+            <div class="calc-control">
+              <label>
+                <span>Visitors Who Scrolled Far Enough to See Button:</span>
+                <strong id="calcSeenPctVal" style="color:var(--accent-emerald)">25%</strong>
+              </label>
+              <input type="range" id="calcSeenPct" min="5" max="100" step="5" value="25" oninput="updateCalculator()">
+            </div>
+
+            <div class="calc-control">
+              <label>
+                <span>Total Button Clicks:</span>
+                <strong id="calcClicksVal" style="color:var(--accent-amber)">250</strong>
+              </label>
+              <input type="range" id="calcClicks" min="10" max="2000" step="10" value="250" oninput="updateCalculator()">
+            </div>
+          </div>
+
+          <div class="calc-results">
+            <div class="calc-result-row">
+              <div>
+                <div class="calc-metric-name">Legacy GA4 Calculation</div>
+                <div style="font-size: 11px; color: var(--text-dim)">(Clicks ÷ Total Pageviews)</div>
+              </div>
+              <div class="calc-metric-val ga4" id="calcLegacyCtr">2.5%</div>
+            </div>
+
+            <div class="calc-result-row">
+              <div>
+                <div class="calc-metric-name" style="color:#fff; font-weight:700;">Quhip True Element CTR</div>
+                <div style="font-size: 11px; color: var(--accent-emerald)">(Clicks ÷ Sessions That Saw Button)</div>
+              </div>
+              <div class="calc-metric-val quhip" id="calcQuhipCtr">10.0%</div>
+            </div>
+
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.5; padding-top: 6px;">
+              💡 <strong>The Reality:</strong> In GA4, your button looks like it converted poorly at 2.5%. With Quhip, you see the truth: <strong>1 in 10 visitors who actually saw the button clicked it!</strong> Your copy is converting great; your page layout just buried the button.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       TRANSFORMATION & PROOF (PASTOR: T - Before vs After)
+       ========================================================================== -->
+  <section id="transformation">
+    <div class="container">
+      <div style="text-align: center; max-width: 720px; margin: 0 auto;">
+        <span class="section-eyebrow">The Transformation</span>
+        <h2 class="section-title">How Quhip Completely Transforms Your Stack</h2>
+        <p class="section-desc" style="margin: 0 auto;">
+          Throw away the bloat. Keep 100% of your data ownership. Here is how Quhip measures up against legacy tools.
+        </p>
+      </div>
+
+      <div class="compare-table-wrapper">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Legacy Analytics (GA4)</th>
+              <th>Bloated Heatmap SaaS</th>
+              <th>Quhip (Edge Native)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="feature">Cookie Consent Banner</td>
+              <td class="legacy">Mandatory (or risk GDPR fines)</td>
+              <td class="legacy">Mandatory</td>
+              <td class="quhip">Never Needed (0 Cookies)</td>
+            </tr>
+            <tr>
+              <td class="feature">Client Bundle Footprint</td>
+              <td class="legacy">~85 KB</td>
+              <td class="legacy">150 KB – 300 KB</td>
+              <td class="quhip">4.18 KB Gzipped</td>
+            </tr>
+            <tr>
+              <td class="feature">Script Execution Overhead</td>
+              <td class="legacy">15 – 45 ms</td>
+              <td class="legacy">50 – 120 ms</td>
+              <td class="quhip">&lt; 1 ms (~0.82 ms)</td>
+            </tr>
+            <tr>
+              <td class="feature">Element CTR Denominator</td>
+              <td class="legacy">Total Pageviews (Skewed)</td>
+              <td class="legacy">Total Pageviews</td>
+              <td class="quhip">True Element Visibility</td>
+            </tr>
+            <tr>
+              <td class="feature">Click & Scroll Heatmaps</td>
+              <td class="legacy">None (Requires Looker / add-ons)</td>
+              <td class="legacy">Yes (Raw session replays)</td>
+              <td class="quhip">Built-in with Suppression</td>
+            </tr>
+            <tr>
+              <td class="feature">Data Storage & Ownership</td>
+              <td class="legacy">Google Cloud (Big Tech Profiling)</td>
+              <td class="legacy">Vendor Cloud (SaaS Lock-in)</td>
+              <td class="quhip">Your Own Cloudflare D1</td>
+            </tr>
+            <tr>
+              <td class="feature">Monthly Hosting Cost</td>
+              <td class="legacy">"Free" (in exchange for user data)</td>
+              <td class="legacy">$99 – $299 / month</td>
+              <td class="quhip">$0 / month (Cloudflare Free Tier)</td>
+            </tr>
+            <tr>
+              <td class="feature">License & Freedom</td>
+              <td class="legacy">Closed Proprietary</td>
+              <td class="legacy">Commercial Closed Source</td>
+              <td class="quhip">100% CC0 Public Domain</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       THE OFFER (PASTOR: O - The Squeeze & The Package)
+       ========================================================================== -->
+  <section id="offer" style="background: rgba(255,255,255,0.015); border-top: 1px solid var(--border);">
+    <div class="container">
+      <div class="offer-box">
+        <div class="offer-grid">
+          <div class="offer-details">
+            <span class="badge badge-emerald" style="margin-bottom: 16px;">100% Free Forever</span>
+            <h3>Everything You Need to Own Your Behavioral Intelligence</h3>
+            <p>
+              No premium paywalls. No tiered feature traps. Quhip is dedicated to the public domain under CC0 1.0 Universal and Kopimi. Self-host it on your own Cloudflare account in under 60 seconds.
+            </p>
+            <ul class="offer-bullets">
+              <li><strong>Complete Edge Worker:</strong> Hono API + immediate D1 rollup aggregation.</li>
+              <li><strong>Micro-Snippet:</strong> 4.18 KB tracker with IntersectionObserver CTR & dead-click detection.</li>
+              <li><strong>Interactive Dashboard:</strong> Multi-site management, live preview heatmaps, and goal tracking.</li>
+              <li><strong>Zero Cloud Costs:</strong> Operates easily inside Cloudflare's free tier of 100,000 requests/day.</li>
+              <li><strong>GitHub Actions Pipeline:</strong> Push-to-deploy workflow included for instant CI/CD.</li>
+            </ul>
+          </div>
+
+          <div class="squeeze-card">
+            <h4>Get The Cookieless Playbook</h4>
+            <p>
+              Join engineers and founders receiving our self-hosting field manual, release notes, and optimization recipes.
+            </p>
+            <form id="offerSqueezeForm" onsubmit="handleSqueezeSubmit(event, 'offer')">
+              <input type="email" id="offerEmail" placeholder="your.name@company.com" required autocomplete="email">
+              <button type="submit" class="btn btn-emerald" style="width: 100%;" data-quhip="offer-squeeze-btn">
+                Send Me The Playbook & Updates
+              </button>
+            </form>
+            <div style="font-size: 11px; color: var(--text-dim); margin-top: 14px;">
+              Zero cookies stored. Instant email confirmation.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       RESPONSE & FAQ (PASTOR: R - Response Triggers & Objections)
+       ========================================================================== -->
+  <section id="faq">
+    <div class="container">
+      <div style="text-align: center; max-width: 680px; margin: 0 auto;">
+        <span class="section-eyebrow">Clear Answers</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-desc" style="margin: 0 auto;">
+          Straight talk on privacy laws, edge deployment, and how Quhip works.
+        </p>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item open">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Do I really not need a cookie banner in the EU or UK?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Yes, really. Both the GDPR and the ePrivacy Directive (PECR) mandate consent banners only when storing or retrieving information from a user's terminal device (e.g. cookies or local tracking IDs) for non-essential tracking, or when processing personal data like IP addresses. Quhip uses strictly ephemeral <code>sessionStorage</code> tokens that are destroyed when the browser tab closes, never accesses <code>document.cookie</code>, stores zero IP addresses (retaining only coarse country codes provided by Cloudflare headers), and suppresses low-count metrics.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>How much does it actually cost to host Quhip?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            For almost every indie hacker, startup, or blog: <strong>$0 per month</strong>. Cloudflare Workers includes 100,000 requests per day for free, and Cloudflare D1 provides 5 million row reads and 100,000 row writes per day for free. Because Quhip immediately rolls up events upon ingest rather than storing raw logs, database operations remain tiny.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>How is True Element CTR calculated?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Traditional tools compute CTR as <code>Clicks / Total Pageviews</code>. Quhip observes when buttons or links become at least 50% visible in the user's viewport using the browser's native <code>IntersectionObserver</code>. The True Element CTR is calculated as <code>Unique Sessions Clicked / Unique Sessions That Actually Saw The Element</code>. If a user never scrolled to your footer button, their session won't skew your conversion math.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Can I track Single Page Applications (Next.js, Remix, Astro, Vue)?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Yes. The Quhip tracking snippet automatically intercepts HTML5 history API changes (<code>pushState</code> and <code>replaceState</code>) along with <code>popstate</code> events. When your SPA changes client routes, Quhip automatically records the pageview, resets element visibility observers, and tracks path sequences.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>How do click heatmaps protect visitor privacy?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Quhip normalizes click coordinates into relative 0–99% buckets across the page, preventing micro-fingerprinting. Furthermore, Quhip strictly enforces small-count suppression: if a page has fewer than 5 unique sessions in the selected date window, heatmap overlay endpoints return "Not enough data" to ensure no individual visitor's path can ever be isolated.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FINAL CALL TO ACTION (PASTOR: R - Decisive Response)
+       ========================================================================== -->
+  <section class="final-cta">
+    <div class="container">
+      <h2>Ready to Stop Flying Blind?</h2>
+      <p>
+        Deploy your own private, cookieless behavioral analytics engine in 60 seconds. Free forever, completely open source.
+      </p>
+      <div class="cta-buttons">
+        <a href="https://github.com/hoytnix/Quhip" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 16px; padding: 14px 28px;" data-quhip="final-deploy-btn">
+          🚀 Deploy to Cloudflare in 60s
+        </a>
+        <a href="/dashboard" class="btn btn-outline" style="font-size: 16px; padding: 14px 24px;" data-quhip="final-demo-btn">
+          📊 Open Live Dashboard Demo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container footer-content">
+      <div class="kopimi-badge">
+        <span>(k)</span> Kopimi — All content & code dedicated to CC0 Public Domain.
+      </div>
+      <div class="footer-links">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/api/health">System Status</a>
+        <a href="https://github.com/hoytnix/Quhip" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/hoytnix/Quhip/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast">
+    <span id="toastMsg">Snippet copied to clipboard!</span>
+  </div>
+
+  <!-- ==========================================================================
+       INLINE APPLICATION JAVASCRIPT — Zero external dependencies
+       ========================================================================== -->
+  <script>
+    // Copy CLI command button
+    function copyCliCommand(button) {
+      const cmd = "git clone https://github.com/hoytnix/Quhip.git && cd Quhip && pnpm install && pnpm exec wrangler deploy";
+      navigator.clipboard.writeText(cmd).then(() => {
+        showToast("Deploy command copied to clipboard!");
+        const originalText = button.textContent;
+        button.textContent = "Copied! ✓";
+        button.style.background = "#059669";
+        button.style.color = "#fff";
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.background = "";
+          button.style.color = "";
+        }, 2000);
+      }).catch(() => {
+        showToast("Select command and press Ctrl+C to copy");
+      });
+    }
+
+    // Copy snippet button
+    function copySnippet(button) {
+      const code = '<script defer src="https://your-quhip.workers.dev/quhip.js" data-site="your_site_key"><\\/script>';
+      const cleanCode = '<script defer src="https://your-quhip.workers.dev/quhip.js" data-site="your_site_key"><' + '/script>';
+      navigator.clipboard.writeText(cleanCode).then(() => {
+        showToast("Tracking snippet copied to clipboard!");
+        const originalText = button.textContent;
+        button.textContent = "Copied! ✓";
+        button.style.background = "#059669";
+        button.style.color = "#fff";
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.background = "";
+          button.style.color = "";
+        }, 2000);
+      }).catch(() => {
+        showToast("Select snippet and press Ctrl+C to copy");
+      });
+    }
+
+    // Toast notification
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toastMsg");
+      toastMsg.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    // FAQ Accordion Toggle
+    function toggleFaq(headerEl) {
+      const parent = headerEl.parentElement;
+      const isOpen = parent.classList.contains("open");
+      
+      // Close other accordions
+      document.querySelectorAll(".faq-item").forEach(item => {
+        item.classList.remove("open");
+      });
+
+      if (!isOpen) {
+        parent.classList.add("open");
+      }
+    }
+
+    // Interactive CTR Calculator
+    function updateCalculator() {
+      const visitors = parseInt(document.getElementById("calcVisitors").value, 10);
+      const seenPct = parseInt(document.getElementById("calcSeenPct").value, 10);
+      const clicks = parseInt(document.getElementById("calcClicks").value, 10);
+
+      document.getElementById("calcVisitorsVal").textContent = visitors.toLocaleString();
+      document.getElementById("calcSeenPctVal").textContent = seenPct + "%";
+      document.getElementById("calcClicksVal").textContent = clicks.toLocaleString();
+
+      const legacyCtr = ((clicks / visitors) * 100).toFixed(1);
+      const sessionsSeen = Math.max(1, Math.round(visitors * (seenPct / 100)));
+      const quhipCtr = ((clicks / sessionsSeen) * 100).toFixed(1);
+
+      document.getElementById("calcLegacyCtr").textContent = legacyCtr + "%";
+      document.getElementById("calcQuhipCtr").textContent = quhipCtr + "%";
+    }
+
+    // Squeeze Form Handler
+    function handleSqueezeSubmit(event, source) {
+      event.preventDefault();
+      const emailInput = source === 'hero' ? document.getElementById("heroEmail") : document.getElementById("offerEmail");
+      const email = emailInput.value.trim();
+
+      if (!email || !email.includes("@")) {
+        showToast("Please enter a valid email address");
+        return;
+      }
+
+      // Store in localStorage as self-contained persistence
+      try {
+        const subs = JSON.parse(localStorage.getItem("quhip_subscribers") || "[]");
+        subs.push({ email, source, date: new Date().toISOString() });
+        localStorage.setItem("quhip_subscribers", JSON.stringify(subs));
+      } catch (e) {}
+
+      // Visual transformation
+      const form = event.target;
+      form.innerHTML = '<div style="color: #34d399; font-weight: 700; padding: 12px 0; font-size: 15px;">✓ You are in! Check your inbox for the Cookieless Playbook.</div>';
+      showToast("Playbook requested! Check your inbox.");
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "quhip-www",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Quhip Cookieless Analytics official website and squeeze landing page",
+  "type": "module",
+  "license": "CC0-1.0",
+  "scripts": {
+    "dev": "npx serve . -l 3000",
+    "preview": "npx serve . -l 3000",
+    "build": "echo 'Single-file bundle ready in index.html'"
+  }
+}

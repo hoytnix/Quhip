@@ -22,6 +22,8 @@ Cookieless, privacy-first web analytics with click/scroll heatmaps, automatic el
 - **Database**: Cloudflare D1 (SQLite at the edge)
 - **Package Manager**: `pnpm` exclusively
 - **Tracker Snippet**: Minified Vanilla TypeScript, **3.99 KB gzipped** (well under 10 KB budget)
+- **Official Website & Squeeze Page**: Independent package located in `www/` (and `WWW/`), served as a single-file zero-roundtrip `index.html` (inline CSS & JS) using the Ray Edwards PASTOR copywriting framework.
+- **Continuous Deployment**: Automated GitHub Actions workflow (`.github/workflows/deploy.yml`) executing tests and deploying the website and worker on every push.
 
 ## Quick Start
 
@@ -54,6 +56,22 @@ pnpm exec wrangler d1 execute quhip-db --remote --file=migrations/0001_initial_s
 
 # Deploy worker
 pnpm exec wrangler deploy
+```
+
+## Continuous Deployment (GitHub Actions)
+
+Quhip includes an automated GitHub Actions CI/CD workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) that triggers on every push to `main`:
+
+1. **Automated Verification**: Runs full Vitest suite (`pnpm test`), builds the tracker snippet, and verifies single-file website integrity.
+2. **GitHub Pages Deployment**: Deploys the `www` single-file homepage/squeeze page directly to GitHub Pages with zero external dependencies.
+3. **Cloudflare Deployment**: When `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are configured, deploys the Quhip Worker API to Cloudflare Workers and the `www` package to Cloudflare Pages.
+
+### Local WWW Development
+
+The official website is located in `www/` (aliased via symlink to `WWW/`):
+```bash
+# Preview the single-file website locally
+pnpm --filter quhip-www dev
 ```
 
 ## Adding the Tracker Snippet

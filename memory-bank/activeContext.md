@@ -8,12 +8,24 @@
   - Implemented `/api/dashboard/heatmaps/pages` directory endpoint returning tracked pages with session and click counts.
   - Enhanced `/api/dashboard/heatmaps` with strict per-page minimum session suppression (< 5 sessions) and metadata.
   - Implemented `/api/dashboard/preview` proxy endpoint: fetches target HTML, strips `X-Frame-Options` and CSP frame-ancestors, injects `<base href="...">`, and neutralizes navigation clicks.
-  - Refactored dashboard UI with a simulated browser window preview container, iframe live page underlay, transparent click canvas overlay, horizontal scroll depth guide lines (25%, 50%, 75%, 100%), opacity slider, interactive tooltip, responsive viewport switcher (Desktop, Tablet, Mobile), and direct "Heatmap ➔" jump from the Top Pages table.
-  - Resolved template literal regex escaping in [`src/ui/dashboard.ts`](file:///home/oloty/Dev/Quhip/src/ui/dashboard.ts) and removed redundant iframe sandbox attribute causing console warnings.
-  - Added test suite in [`test/heatmap-preview.test.ts`](file:///home/oloty/Dev/Quhip/test/heatmap-preview.test.ts) (25 passing tests total).
-- **Active Development Environments**:
-  - Quhip Worker API & Dashboard running on `http://localhost:8787`.
-  - Hello Quhip Test App running on `http://localhost:5173`.
+  - Refactored dashboard UI with a simulated browser window preview container, iframe live page underlay, transparent click canvas overlay, horizontal scroll depth guide lines (25%, 50%, 75%, 100%), opacity slider, interactive tooltip, responsive viewport switcher, and direct "Heatmap ➔" jump from Top Pages.
+- **Standalone WWW Landing & Squeeze Page Package Delivered**:
+  - Structured separate workspace package in `www/` (aliased via `WWW` symlink) with its own `package.json` (`quhip-www`).
+  - Created single-file zero-roundtrip `www/index.html` with completely inlined CSS and JavaScript.
+  - Wrote high-converting, human copy following Ray Edwards' PASTOR framework (Problem, Agitation, Story/Solution, Transformation, Offer, Response).
+  - Configured top navbar "Deploy" button jumping directly to the `#deploy-tutorial` section.
+  - Replaced hero playbook squeeze section with an interactive **1-Click Deploy Tutorial** featuring:
+    - Browser 1-click deploy to Cloudflare Workers via `https://deploy.workers.cloudflare.com/?url=https://github.com/hoytnix/Quhip`.
+    - 3-command CLI deploy snippet with one-click copy button (`copyCliCommand`).
+  - Maintained lead-capture squeeze opt-in in the Offer section for *"The Cookieless Conversion Playbook"*.
+  - Built interactive CTR Calculator comparing GA4 pageview CTR vs Quhip True Element Visibility CTR.
+  - Configured Quhip dogfood tracking snippet (`data-site="qhp_quhip_www"`).
+- **Automated Push-to-Deploy CI/CD Pipeline Configured**:
+  - Added `.github/workflows/deploy.yml` triggering on every push to `main`.
+  - Runs full test suite and builds snippet.
+  - Deploys `www` to GitHub Pages automatically with zero credentials.
+  - Deploys Quhip Worker API to Cloudflare Workers and `www` to Cloudflare Pages when repository secrets (`CLOUDFLARE_API_TOKEN`) are configured.
+- Added test coverage in [`test/www-landing.test.ts`](file:///home/oloty/Dev/Quhip/test/www-landing.test.ts) (32 tests passing across 10 test files).
 
 ## Next Focus
-- Monitor deployments, remote D1 migrations, and live telemetry.
+- Monitor deployments, live telemetry, and subscriber leads.
