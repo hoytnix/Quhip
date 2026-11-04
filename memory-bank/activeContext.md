@@ -21,11 +21,10 @@
   - Built interactive CTR Calculator comparing GA4 pageview CTR vs Quhip True Element Visibility CTR.
   - Configured Quhip dogfood tracking snippet (`data-site="qhp_quhip_www"`).
 - **Automated Push-to-Deploy CI/CD Pipeline Configured**:
-  - Added `.github/workflows/deploy.yml` triggering on every push to `main`.
-  - Configured job output evaluation for optional secrets (`needs.test.outputs.has_cf_secret == 'true'`) because GitHub Actions disables `secrets` and `env` contexts at the job-level `if` level.
+  - Maintained `.github/workflows/deploy.yml` triggering on push to `main` and manual dispatch.
   - Runs full test suite and builds snippet.
-  - Deploys `www` to GitHub Pages automatically with zero credentials.
-  - Deploys Quhip Worker API to Cloudflare Workers and `www` to Cloudflare Pages when repository secrets (`CLOUDFLARE_API_TOKEN`) are configured.
+  - Deploys `www` to GitHub Pages automatically.
+  - Stripped out Cloudflare Workers and Cloudflare Pages CI deployment jobs; all Cloudflare deployments are managed manually via CLI.
 - Added test coverage in [`test/www-landing.test.ts`](file:///home/oloty/Dev/Quhip/test/www-landing.test.ts) (32 tests passing across 10 test files).
 
 ## Next Focus

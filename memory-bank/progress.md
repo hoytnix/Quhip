@@ -21,7 +21,7 @@
   - Top navigation "Deploy" button linking directly to `#deploy-tutorial`.
   - Interactive **1-Click Deploy Tutorial** in hero: Cloudflare Workers 1-click web deploy + 3-step CLI commands with copy helper.
   - Interactive True Element CTR calculator, 1-click snippet copy, and FAQ accordion.
-  - GitHub Actions push-to-deploy workflow (`.github/workflows/deploy.yml`) for GitHub Pages and Cloudflare (using job outputs to evaluate optional secrets).
+  - GitHub Actions workflow (`.github/workflows/deploy.yml`) for running tests, snippet builds, and deploying the `www` static landing page to GitHub Pages (Cloudflare deployment reserved strictly for manual CLI).
   - Comprehensive test suite [`test/www-landing.test.ts`](file:///home/oloty/Dev/Quhip/test/www-landing.test.ts).
 
 ## Verification Summary

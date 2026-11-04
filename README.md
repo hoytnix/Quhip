@@ -23,7 +23,7 @@ Cookieless, privacy-first web analytics with click/scroll heatmaps, automatic el
 - **Package Manager**: `pnpm` exclusively
 - **Tracker Snippet**: Minified Vanilla TypeScript, **3.99 KB gzipped** (well under 10 KB budget)
 - **Official Website & Squeeze Page**: Independent package located in `www/` (and `WWW/`), served as a single-file zero-roundtrip `index.html` (inline CSS & JS) using the Ray Edwards PASTOR copywriting framework.
-- **Continuous Deployment**: Automated GitHub Actions workflow (`.github/workflows/deploy.yml`) executing tests and deploying the website and worker on every push.
+- **Continuous Deployment**: Automated GitHub Actions workflow ([`.github/workflows/deploy.yml`](file:///home/oloty/Dev/Quhip/.github/workflows/deploy.yml)) executing tests and deploying the static landing site to GitHub Pages on every push.
 
 ## Quick Start
 
@@ -60,11 +60,10 @@ pnpm exec wrangler deploy
 
 ## Continuous Deployment (GitHub Actions)
 
-Quhip includes an automated GitHub Actions CI/CD workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) that triggers on every push to `main`:
+Quhip includes an automated GitHub Actions CI/CD workflow [`.github/workflows/deploy.yml`](file:///home/oloty/Dev/Quhip/.github/workflows/deploy.yml) that triggers on every push to `main`:
 
 1. **Automated Verification**: Runs full Vitest suite (`pnpm test`), builds the tracker snippet, and verifies single-file website integrity.
-2. **GitHub Pages Deployment**: Deploys the `www` single-file homepage/squeeze page directly to GitHub Pages with zero external dependencies.
-3. **Cloudflare Deployment**: When `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are configured, deploys the Quhip Worker API to Cloudflare Workers and the `www` package to Cloudflare Pages.
+2. **GitHub Pages Deployment**: Deploys the `www` single-file homepage/squeeze page directly to GitHub Pages with zero external dependencies. Cloudflare Workers and Cloudflare Pages deployments are intentionally reserved for manual CLI execution (`pnpm run deploy`).
 
 ### Local WWW Development
 

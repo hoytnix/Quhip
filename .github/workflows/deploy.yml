@@ -1,4 +1,4 @@
-name: Deploy Quhip & WWW Landing Page
+name: Deploy WWW Landing Page
 
 on:
   push:
@@ -21,22 +21,9 @@ jobs:
   test:
     name: Test & Validate
     runs-on: ubuntu-latest
-    outputs:
-      has_cf_secret: ${{ steps.check_secrets.outputs.has_cf_secret }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Check Cloudflare Secrets
-        id: check_secrets
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          if [ -n "$CF_TOKEN" ]; then
-            echo "has_cf_secret=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_cf_secret=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -85,44 +72,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-  deploy-cloudflare:
-    name: Deploy to Cloudflare Workers & Pages
-    needs: test
-    runs-on: ubuntu-latest
-    # Only runs when Cloudflare API credentials are configured in repository secrets
-    if: needs.test.outputs.has_cf_secret == 'true'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Tracker Snippet
-        run: pnpm run build:snippet
-
-      - name: Deploy Quhip Worker API
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
-
-      - name: Deploy WWW Landing Page to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy www --project-name=quhip-www
