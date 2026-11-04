@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Cookieless, privacy-first web analytics with heatmaps and element CTR on Cloudflare Workers",
   "main": "src/index.ts",
+  "license": "CC0-1.0",
   "type": "module",
   "scripts": {
     "build": "pnpm run build:snippet && wrangler deploy --dry-run --outdir dist",

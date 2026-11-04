@@ -1,5 +1,7 @@
 # Quhip
 
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/hoytnix/Quhip)
+
 Cookieless, privacy-first web analytics with click/scroll heatmaps, automatic element CTR, and full session/attribution metrics on Cloudflare Workers and Cloudflare D1.
 
 ## Key Features
@@ -109,3 +111,7 @@ The test suite covers:
 - **Small-Count Suppression**: Verifies counts < 5 sessions return "not enough data".
 - **Performance**: Verifies snippet execution latency is under 0.1 ms per page load.
 - **Dogfood**: Verifies live simulation against TehWiz portfolio structure.
+
+## License
+
+Released under [Kopimi](https://kopimi.com/) (Copy Me). All works are dedicated to the public domain. Free to copy, remix, and share.
