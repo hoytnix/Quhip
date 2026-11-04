@@ -60,10 +60,9 @@ pnpm exec wrangler deploy
 
 ## Continuous Deployment (GitHub Actions)
 
-Quhip includes an automated GitHub Actions CI/CD workflow [`.github/workflows/deploy.yml`](file:///home/oloty/Dev/Quhip/.github/workflows/deploy.yml) that triggers on every push to `main`:
+Quhip includes a minimal GitHub Actions workflow [`.github/workflows/deploy.yml`](file:///home/oloty/Dev/Quhip/.github/workflows/deploy.yml) that triggers on every push to `main`:
 
-1. **Automated Verification**: Runs full Vitest suite (`pnpm test`), builds the tracker snippet, and verifies single-file website integrity.
-2. **GitHub Pages Deployment**: Deploys the `www` single-file homepage/squeeze page directly to GitHub Pages with zero external dependencies. Cloudflare Workers and Cloudflare Pages deployments are intentionally reserved for manual CLI execution (`pnpm run deploy`).
+- **Pure Static GitHub Pages Deployment**: Directly uploads and deploys the pre-bundled `www` single-file homepage/squeeze page to GitHub Pages with zero Node/pnpm build steps or dependencies. Cloudflare Workers and Cloudflare Pages deployments are intentionally reserved for manual CLI execution (`pnpm run deploy`).
 
 ### Local WWW Development
 

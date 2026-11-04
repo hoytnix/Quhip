@@ -20,11 +20,10 @@
   - Maintained lead-capture squeeze opt-in in the Offer section for *"The Cookieless Conversion Playbook"*.
   - Built interactive CTR Calculator comparing GA4 pageview CTR vs Quhip True Element Visibility CTR.
   - Configured Quhip dogfood tracking snippet (`data-site="qhp_quhip_www"`).
-- **Automated Push-to-Deploy CI/CD Pipeline Configured**:
-  - Maintained `.github/workflows/deploy.yml` triggering on push to `main` and manual dispatch.
-  - Runs full test suite and builds snippet.
-  - Deploys `www` to GitHub Pages automatically.
-  - Stripped out Cloudflare Workers and Cloudflare Pages CI deployment jobs; all Cloudflare deployments are managed manually via CLI.
+- **Static GitHub Pages Push-to-Deploy Workflow**:
+  - Simplified `.github/workflows/deploy.yml` to a single zero-dependency job: checkout and deploy static `www/` directory to GitHub Pages.
+  - Completely stripped out Node.js, pnpm, and external build dependencies from GitHub Actions CI so static page deployments never fail on package manager or cache steps.
+  - Cloudflare Workers and Cloudflare Pages deployments remain strictly manual via CLI (`pnpm run deploy`).
 - Added test coverage in [`test/www-landing.test.ts`](file:///home/oloty/Dev/Quhip/test/www-landing.test.ts) (32 tests passing across 10 test files).
 
 ## Next Focus
