@@ -24,6 +24,8 @@
   - Simplified `.github/workflows/deploy.yml` to a single zero-dependency job: checkout and deploy static `www/` directory to GitHub Pages.
   - Completely stripped out Node.js, pnpm, and external build dependencies from GitHub Actions CI so static page deployments never fail on package manager or cache steps.
   - Cloudflare Workers and Cloudflare Pages deployments remain strictly manual via CLI (`pnpm run deploy`).
+- **Core Memory Bank Protocol Enhancement**:
+  - Updated `GEMINI.md` to enforce immediate Git staging, committing, and pushing every time `/memory-bank/` files are written.
 - Added test coverage in [`test/www-landing.test.ts`](file:///home/oloty/Dev/Quhip/test/www-landing.test.ts) (32 tests passing across 10 test files).
 
 ## Next Focus
