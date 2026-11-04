@@ -62,17 +62,176 @@ export function renderDashboardHtml(): string {
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
     tr:hover td { background: rgba(255,255,255,0.02); }
 
+    .btn-sm { padding: 4px 10px; font-size: 11px; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; }
     .badge-outbound { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
     .badge-rage { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
     .badge-dead { background: rgba(161, 161, 170, 0.15); color: var(--text-muted); border: 1px solid rgba(161, 161, 170, 0.3); }
     .suppressed-badge { color: #71717a; font-style: italic; font-size: 12px; }
 
-    .heatmap-canvas-container { position: relative; width: 100%; max-width: 800px; height: 500px; background: #000; border-radius: 8px; border: 1px solid var(--card-border); overflow: hidden; margin: 0 auto; }
-    canvas#heatmapCanvas { width: 100%; height: 100%; display: block; }
+    .browser-frame {
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #18181b;
+      margin-top: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .browser-header {
+      background: #27272a;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 13px;
+    }
+    .browser-dots { display: flex; gap: 6px; }
+    .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+    .browser-address-bar {
+      flex: 1;
+      background: #18181b;
+      border-radius: 6px;
+      padding: 5px 12px;
+      color: #a1a1aa;
+      font-family: monospace;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      border: 1px solid #3f3f46;
+    }
+    .browser-header-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .viewport-outer-container {
+      background: #09090b;
+      padding: 16px;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+      min-height: 550px;
+    }
+    .heatmap-canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      min-height: 600px;
+      height: 700px;
+      background: #09090b;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin: 0 auto;
+      transition: max-width 0.2s ease;
+    }
+    .heatmap-viewport-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 100%;
+    }
+    iframe#previewIframe {
+      width: 100%;
+      min-height: 700px;
+      height: 700px;
+      border: none;
+      display: block;
+      background: #ffffff;
+      pointer-events: none;
+    }
+    canvas#heatmapCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: auto;
+      z-index: 10;
+      cursor: crosshair;
+    }
+    .heatmap-suppression-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 9, 11, 0.94);
+      backdrop-filter: blur(4px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 30px;
+      text-align: center;
+    }
+    .heatmap-tooltip {
+      position: absolute;
+      background: rgba(24, 24, 27, 0.95);
+      border: 1px solid #3f3f46;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: #fff;
+      pointer-events: none;
+      z-index: 30;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transform: translate(-50%, -130%);
+      white-space: nowrap;
+    }
+    .heatmap-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      background: #18181b;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+    .heatmap-toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .viewport-btn {
+      padding: 4px 10px;
+      font-size: 12px;
+      border: 1px solid var(--card-border);
+      background: #27272a;
+      color: #d4d4d8;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .viewport-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .heatmap-ctrl-select {
+      background: #27272a;
+      border: 1px solid var(--card-border);
+      color: #f4f4f5;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
     .depth-bar-container { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
     .depth-bar-row { display: flex; align-items: center; gap: 12px; font-size: 13px; }
-    .depth-bar-label { width: 70px; color: var(--text-muted); }
+    .depth-bar-label { width: 75px; color: var(--text-muted); }
     .depth-bar-track { flex: 1; height: 12px; background: #27272a; border-radius: 6px; overflow: hidden; }
     .depth-bar-fill { height: 100%; background: var(--primary); border-radius: 6px; }
     .depth-bar-val { width: 50px; text-align: right; font-weight: 600; }
@@ -184,6 +343,7 @@ export function renderDashboardHtml(): string {
                 <th>Bounce Rate</th>
                 <th>Avg Active Time</th>
                 <th>Median Active Time</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="pagesTableBody"></tbody>
@@ -225,34 +385,112 @@ export function renderDashboardHtml(): string {
     <!-- Tab 3: Heatmaps & Scroll -->
     <div id="heatmapsTab" class="tab-content">
       <div class="card">
-        <div class="card-title">
-          <span>Click Heatmap Overlay</span>
-          <span id="heatmapStatus" style="font-size: 12px; color: var(--text-muted); font-weight: 400;"></span>
+        <div class="heatmap-toolbar">
+          <div class="heatmap-toolbar-group">
+            <label for="heatmapPageSelect" style="font-weight: 600; color: #fff;">Page:</label>
+            <select id="heatmapPageSelect" class="heatmap-ctrl-select" style="min-width: 220px; max-width: 320px;"></select>
+            <a id="heatmapExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open live page in new tab">↗ Live Page</a>
+          </div>
+
+          <div class="heatmap-toolbar-group">
+            <span style="color: var(--text-muted); font-size: 12px;">Viewport:</span>
+            <div style="display: flex; gap: 4px;">
+              <button type="button" class="viewport-btn active" data-vp="desktop" id="vpDesktopBtn">Desktop</button>
+              <button type="button" class="viewport-btn" data-vp="tablet" id="vpTabletBtn">Tablet (768px)</button>
+              <button type="button" class="viewport-btn" data-vp="mobile" id="vpMobileBtn">Mobile (375px)</button>
+            </div>
+          </div>
+
+          <div class="heatmap-toolbar-group">
+            <span style="color: var(--text-muted); font-size: 12px;">Preview:</span>
+            <select id="heatmapPreviewMode" class="heatmap-ctrl-select">
+              <option value="proxy" selected>Proxy Preview (Workers)</option>
+              <option value="direct">Direct Iframe</option>
+              <option value="canvas">Dark Canvas Only</option>
+            </select>
+          </div>
+
+          <div class="heatmap-toolbar-group">
+            <span style="color: var(--text-muted); font-size: 12px;">Opacity:</span>
+            <input type="range" id="heatmapOpacitySlider" min="0.1" max="1" step="0.05" value="0.75" style="width: 75px; accent-color: var(--primary);" />
+            <span id="heatmapOpacityVal" style="font-size: 11px; color: var(--text-muted); width: 28px;">75%</span>
+          </div>
+
+          <div class="heatmap-toolbar-group">
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 12px;">
+              <input type="checkbox" id="heatmapShowClicks" checked style="accent-color: var(--primary);" />
+              Clicks
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 12px;">
+              <input type="checkbox" id="heatmapShowScroll" checked style="accent-color: var(--primary);" />
+              Scroll Guides
+            </label>
+            <button type="button" id="heatmapReloadBtn" class="btn btn-secondary btn-sm" title="Reload Preview & Heatmap">↻</button>
+          </div>
         </div>
-        <div class="heatmap-canvas-container">
-          <canvas id="heatmapCanvas" width="800" height="500"></canvas>
+
+        <!-- Simulated Browser Preview Frame -->
+        <div class="browser-frame">
+          <div class="browser-header">
+            <div class="browser-dots">
+              <div class="browser-dot dot-red"></div>
+              <div class="browser-dot dot-yellow"></div>
+              <div class="browser-dot dot-green"></div>
+            </div>
+            <div class="browser-address-bar">
+              <span style="color: #10b981;">🔒</span>
+              <span id="browserAddressUrl">https://.../</span>
+            </div>
+            <div class="browser-header-badges">
+              <span id="heatmapStatus" class="badge" style="background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3);"></span>
+              <span id="heatmapClickCountBadge" class="badge" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3);"></span>
+            </div>
+          </div>
+
+          <div class="viewport-outer-container">
+            <div id="heatmapCanvasContainer" class="heatmap-canvas-container">
+              <div id="heatmapViewportWrapper" class="heatmap-viewport-wrapper">
+                <iframe id="previewIframe" title="Page Preview" sandbox="allow-same-origin allow-scripts"></iframe>
+                <canvas id="heatmapCanvas"></canvas>
+                <div id="heatmapTooltip" class="heatmap-tooltip"></div>
+                <div id="heatmapSuppressionOverlay" class="heatmap-suppression-overlay">
+                  <div style="font-size: 36px; margin-bottom: 12px;">🔒</div>
+                  <h3 style="margin: 0 0 8px 0; color: #fff;">Small-Count Privacy Suppression</h3>
+                  <p id="suppressionOverlayMsg" style="color: #a1a1aa; max-width: 480px; font-size: 14px; margin: 0 0 16px 0;">
+                    Heatmap requires at least 5 sessions on this page to display. This safeguards individual visitor privacy.
+                  </p>
+                  <span id="suppressionSessionCount" class="badge" style="background: #27272a; color: #e4e4e7; padding: 4px 10px; font-size: 12px;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Scroll Depth Distribution -->
         <div style="margin-top: 24px;">
-          <h4 style="font-size: 14px; margin-bottom: 12px;">Scroll Depth Distribution</h4>
+          <h4 style="font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <span>Scroll Depth Distribution</span>
+            <span id="avgMaxScrollBadge" style="font-size: 12px; color: var(--text-muted); font-weight: normal;">Avg Max Depth: 0%</span>
+          </h4>
           <div class="depth-bar-container">
             <div class="depth-bar-row">
-              <div class="depth-bar-label">25% Depth</div>
-              <div class="depth-bar-track"><div id="depthFill25" class="depth-bar-fill" style="width: 0%;"></div></div>
+              <div class="depth-bar-label" style="color: #10b981; font-weight: 500;">25% Depth</div>
+              <div class="depth-bar-track"><div id="depthFill25" class="depth-bar-fill" style="width: 0%; background: #10b981;"></div></div>
               <div id="depthVal25" class="depth-bar-val">0%</div>
             </div>
             <div class="depth-bar-row">
-              <div class="depth-bar-label">50% Depth</div>
-              <div class="depth-bar-track"><div id="depthFill50" class="depth-bar-fill" style="width: 0%;"></div></div>
+              <div class="depth-bar-label" style="color: #06b6d4; font-weight: 500;">50% Depth</div>
+              <div class="depth-bar-track"><div id="depthFill50" class="depth-bar-fill" style="width: 0%; background: #06b6d4;"></div></div>
               <div id="depthVal50" class="depth-bar-val">0%</div>
             </div>
             <div class="depth-bar-row">
-              <div class="depth-bar-label">75% Depth</div>
-              <div class="depth-bar-track"><div id="depthFill75" class="depth-bar-fill" style="width: 0%;"></div></div>
+              <div class="depth-bar-label" style="color: #f59e0b; font-weight: 500;">75% Depth</div>
+              <div class="depth-bar-track"><div id="depthFill75" class="depth-bar-fill" style="width: 0%; background: #f59e0b;"></div></div>
               <div id="depthVal75" class="depth-bar-val">0%</div>
             </div>
             <div class="depth-bar-row">
-              <div class="depth-bar-label">100% Depth</div>
-              <div class="depth-bar-track"><div id="depthFill100" class="depth-bar-fill" style="width: 0%;"></div></div>
+              <div class="depth-bar-label" style="color: #ef4444; font-weight: 500;">100% Depth</div>
+              <div class="depth-bar-track"><div id="depthFill100" class="depth-bar-fill" style="width: 0%; background: #ef4444;"></div></div>
               <div id="depthVal100" class="depth-bar-val">0%</div>
             </div>
           </div>
@@ -389,6 +627,9 @@ export function renderDashboardHtml(): string {
       let authToken = sessionStorage.getItem('quhip_token');
       let currentSites = [];
       let selectedSiteId = null;
+      let selectedHeatmapPath = '/';
+      let currentHeatmapData = null;
+      let currentHeatmapDomain = '';
 
       // DOM Elements
       const authScreen = document.getElementById('authScreen');
@@ -568,13 +809,23 @@ export function renderDashboardHtml(): string {
         loadSites();
       };
 
+      function switchTab(tabId) {
+        document.querySelectorAll('.nav-tab').forEach(t => {
+          t.classList.toggle('active', t.getAttribute('data-tab') === tabId);
+        });
+        document.querySelectorAll('.tab-content').forEach(c => {
+          c.classList.toggle('active', c.id === tabId);
+        });
+      }
+
       // Tab switching
       document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.onclick = () => {
-          document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-          tab.classList.add('active');
-          document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+          const tabId = tab.getAttribute('data-tab');
+          switchTab(tabId);
+          if (tabId === 'heatmapsTab') {
+            loadHeatmaps(selectedHeatmapPath);
+          }
         };
       });
 
@@ -615,7 +866,15 @@ export function renderDashboardHtml(): string {
             '<td>' + formatSuppressed(p.exits) + '</td>' +
             '<td>' + formatSuppressedPct(p.bounce_rate) + '</td>' +
             '<td>' + formatSuppressedSec(p.avg_active_time) + '</td>' +
-            '<td>' + formatSuppressedSec(p.median_active_time) + '</td>';
+            '<td>' + formatSuppressedSec(p.median_active_time) + '</td>' +
+            '<td><button type="button" class="btn btn-secondary btn-sm view-heatmap-btn" data-path="' + p.path + '">Heatmap ➔</button></td>';
+
+          tr.querySelector('.view-heatmap-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectedHeatmapPath = p.path;
+            switchTab('heatmapsTab');
+            loadHeatmaps(p.path);
+          });
           pagesTbody.appendChild(tr);
         });
 
@@ -643,45 +902,7 @@ export function renderDashboardHtml(): string {
         });
 
         // Heatmaps
-        const heatRes = await api('/api/dashboard/heatmaps?site_id=' + selectedSiteId + '&from=' + from + '&to=' + to);
-        const canvas = document.getElementById('heatmapCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (!heatRes.has_enough_data) {
-          document.getElementById('heatmapStatus').textContent = '(not enough data: < 5 sessions)';
-          ctx.fillStyle = '#27272a';
-          ctx.font = '14px system-ui';
-          ctx.textAlign = 'center';
-          ctx.fillText('Not enough data to render heatmap (min 5 sessions required)', canvas.width / 2, canvas.height / 2);
-        } else {
-          document.getElementById('heatmapStatus').textContent = '(' + heatRes.sessions + ' sessions in range)';
-          // Render Click overlay points
-          (heatRes.click_points || []).forEach(pt => {
-            const x = (pt.x_bucket / 100) * canvas.width;
-            const y = (pt.y_bucket / 100) * canvas.height;
-            const radius = Math.min(30, 8 + pt.clicks * 3);
-            const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
-            grad.addColorStop(0, 'rgba(239, 68, 68, 0.8)');
-            grad.addColorStop(0.5, 'rgba(245, 158, 11, 0.4)');
-            grad.addColorStop(1, 'rgba(59, 130, 246, 0)');
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
-            ctx.fill();
-          });
-
-          // Scroll depth
-          const sd = heatRes.scroll_depth || {};
-          document.getElementById('depthFill25').style.width = sd.pct_reached_25 + '%';
-          document.getElementById('depthVal25').textContent = sd.pct_reached_25 + '%';
-          document.getElementById('depthFill50').style.width = sd.pct_reached_50 + '%';
-          document.getElementById('depthVal50').textContent = sd.pct_reached_50 + '%';
-          document.getElementById('depthFill75').style.width = sd.pct_reached_75 + '%';
-          document.getElementById('depthVal75').textContent = sd.pct_reached_75 + '%';
-          document.getElementById('depthFill100').style.width = sd.pct_reached_100 + '%';
-          document.getElementById('depthVal100').textContent = sd.pct_reached_100 + '%';
-        }
+        await loadHeatmaps(selectedHeatmapPath);
 
         // Attribution
         const attrRes = await api('/api/dashboard/attribution?site_id=' + selectedSiteId + '&from=' + from + '&to=' + to);
@@ -753,6 +974,382 @@ export function renderDashboardHtml(): string {
         });
         alert('Settings updated!');
         loadSites();
+      };
+
+      // ==========================================
+      // Heatmap & Live Preview Engine (§7)
+      // ==========================================
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function resetScrollDepthUI() {
+        document.getElementById('avgMaxScrollBadge').textContent = 'Avg Max Depth: 0%';
+        document.getElementById('depthFill25').style.width = '0%';
+        document.getElementById('depthVal25').textContent = '0%';
+        document.getElementById('depthFill50').style.width = '0%';
+        document.getElementById('depthVal50').textContent = '0%';
+        document.getElementById('depthFill75').style.width = '0%';
+        document.getElementById('depthVal75').textContent = '0%';
+        document.getElementById('depthFill100').style.width = '0%';
+        document.getElementById('depthVal100').textContent = '0%';
+      }
+
+      async function loadHeatmaps(targetPath) {
+        if (!selectedSiteId) return;
+        const days = parseInt(dateRangeSelect.value, 10);
+        const to = new Date().toISOString().slice(0, 10);
+        const from = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+
+        // Fetch pages with heatmap & session metrics
+        let pagesRes;
+        try {
+          pagesRes = await api('/api/dashboard/heatmaps/pages?site_id=' + selectedSiteId + '&from=' + from + '&to=' + to);
+        } catch (e) {
+          console.error('Failed to load heatmap pages', e);
+          return;
+        }
+
+        currentHeatmapDomain = pagesRes.domain || '';
+        const pageSelect = document.getElementById('heatmapPageSelect');
+        const existingVal = targetPath || pageSelect.value || selectedHeatmapPath || '/';
+
+        pageSelect.innerHTML = '';
+        const pagesList = pagesRes.pages || [];
+        if (pagesList.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = '/';
+          opt.textContent = '/ (no data recorded)';
+          pageSelect.appendChild(opt);
+        } else {
+          pagesList.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.path;
+            let label = p.path + ' (' + (p.has_enough_data ? (p.raw_sessions + ' sess') : '< 5 sess');
+            if (p.heatmap_clicks > 0) label += ', ' + p.heatmap_clicks + ' clicks';
+            label += ')';
+            opt.textContent = label;
+            pageSelect.appendChild(opt);
+          });
+        }
+
+        let chosenPath = targetPath;
+        if (!chosenPath) {
+          if (pagesList.some(p => p.path === existingVal)) {
+            chosenPath = existingVal;
+          } else if (pagesList.length > 0) {
+            chosenPath = pagesList[0].path;
+          } else {
+            chosenPath = '/';
+          }
+        }
+        selectedHeatmapPath = chosenPath;
+        pageSelect.value = chosenPath;
+
+        await fetchAndRenderHeatmap(chosenPath, from, to);
+      }
+
+      async function fetchAndRenderHeatmap(path, from, to) {
+        const heatRes = await api('/api/dashboard/heatmaps?site_id=' + selectedSiteId + '&path=' + encodeURIComponent(path) + '&from=' + from + '&to=' + to);
+        currentHeatmapData = heatRes;
+
+        const site = currentSites.find(s => s.id === selectedSiteId);
+        const domain = heatRes.domain || (site ? site.domain : '') || currentHeatmapDomain;
+        let targetOrigin = domain;
+        if (!targetOrigin.startsWith('http://') && !targetOrigin.startsWith('https://')) {
+          targetOrigin = 'https://' + targetOrigin;
+        }
+        targetOrigin = targetOrigin.replace(/\/+$/, '');
+        const cleanPath = path.startsWith('/') ? path : '/' + path;
+        const fullTargetUrl = targetOrigin + cleanPath;
+
+        document.getElementById('browserAddressUrl').textContent = fullTargetUrl;
+        const extLink = document.getElementById('heatmapExternalLink');
+        extLink.href = fullTargetUrl;
+
+        const statusBadge = document.getElementById('heatmapStatus');
+        const clickBadge = document.getElementById('heatmapClickCountBadge');
+        const overlay = document.getElementById('heatmapSuppressionOverlay');
+        const canvas = document.getElementById('heatmapCanvas');
+
+        // Check Small-Count Suppression (< 5 sessions)
+        if (!heatRes.has_enough_data) {
+          statusBadge.textContent = '🔒 < 5 sessions (suppressed)';
+          statusBadge.style.color = '#ef4444';
+          clickBadge.textContent = '0 clicks rendered';
+          overlay.style.display = 'flex';
+          document.getElementById('suppressionSessionCount').textContent = 'Sessions recorded: ' + (heatRes.sessions || 0) + ' / 5 required';
+          document.getElementById('suppressionOverlayMsg').innerHTML =
+            'Heatmap and scroll distributions for <code>' + escapeHtml(path) + '</code> require at least 5 sessions to render. This strictly enforces visitor privacy.';
+
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          resetScrollDepthUI();
+          return;
+        }
+
+        // Has enough data (>= 5 sessions)
+        overlay.style.display = 'none';
+        statusBadge.textContent = '(' + heatRes.sessions + ' sessions in range)';
+        statusBadge.style.color = '#60a5fa';
+
+        const totalClicks = (heatRes.click_points || []).reduce((acc, p) => acc + (p.clicks || 0), 0);
+        clickBadge.textContent = totalClicks + ' heatmap click' + (totalClicks === 1 ? '' : 's');
+
+        // Update scroll depth bars
+        const sd = heatRes.scroll_depth || {};
+        document.getElementById('avgMaxScrollBadge').textContent = 'Avg Max Depth: ' + (sd.avg_max_scroll || 0) + '%';
+        document.getElementById('depthFill25').style.width = (sd.pct_reached_25 || 0) + '%';
+        document.getElementById('depthVal25').textContent = (sd.pct_reached_25 || 0) + '%';
+        document.getElementById('depthFill50').style.width = (sd.pct_reached_50 || 0) + '%';
+        document.getElementById('depthVal50').textContent = (sd.pct_reached_50 || 0) + '%';
+        document.getElementById('depthFill75').style.width = (sd.pct_reached_75 || 0) + '%';
+        document.getElementById('depthVal75').textContent = (sd.pct_reached_75 || 0) + '%';
+        document.getElementById('depthFill100').style.width = (sd.pct_reached_100 || 0) + '%';
+        document.getElementById('depthVal100').textContent = (sd.pct_reached_100 || 0) + '%';
+
+        loadIframePreview(fullTargetUrl, path);
+      }
+
+      function loadIframePreview(fullTargetUrl, path) {
+        const iframe = document.getElementById('previewIframe');
+        const canvas = document.getElementById('heatmapCanvas');
+        const mode = document.getElementById('heatmapPreviewMode').value;
+
+        if (mode === 'canvas') {
+          iframe.src = 'about:blank';
+          iframe.style.background = '#09090b';
+          iframe.style.height = '700px';
+          canvas.width = iframe.offsetWidth || 1000;
+          canvas.height = 700;
+          canvas.style.height = '700px';
+          drawHeatmap();
+          return;
+        }
+
+        iframe.style.background = '#ffffff';
+
+        let previewUrl = '';
+        if (mode === 'proxy') {
+          previewUrl = '/api/dashboard/preview?site_id=' + selectedSiteId + '&path=' + encodeURIComponent(path) + '&token=' + encodeURIComponent(authToken || '');
+        } else {
+          previewUrl = fullTargetUrl;
+        }
+
+        iframe.onload = () => {
+          let contentHeight = 700;
+          try {
+            if (mode === 'proxy' && iframe.contentDocument) {
+              const doc = iframe.contentDocument;
+              contentHeight = Math.max(doc.body ? doc.body.scrollHeight : 0, doc.documentElement ? doc.documentElement.scrollHeight : 0, 700);
+            }
+          } catch (e) {
+            contentHeight = 800;
+          }
+
+          iframe.style.height = contentHeight + 'px';
+          canvas.width = iframe.offsetWidth || 1000;
+          canvas.height = contentHeight;
+          canvas.style.height = contentHeight + 'px';
+
+          drawHeatmap();
+        };
+
+        iframe.src = previewUrl;
+
+        setTimeout(() => {
+          canvas.width = iframe.offsetWidth || 1000;
+          canvas.height = parseInt(iframe.style.height || '700', 10);
+          drawHeatmap();
+        }, 300);
+      }
+
+      function drawHeatmap() {
+        if (!currentHeatmapData || !currentHeatmapData.has_enough_data) return;
+        const canvas = document.getElementById('heatmapCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const opacity = parseFloat(document.getElementById('heatmapOpacitySlider').value || '0.75');
+        const showClicks = document.getElementById('heatmapShowClicks').checked;
+        const showScroll = document.getElementById('heatmapShowScroll').checked;
+
+        ctx.globalAlpha = opacity;
+
+        // 1. Draw Clicks Heatmap
+        if (showClicks && currentHeatmapData.click_points && currentHeatmapData.click_points.length > 0) {
+          currentHeatmapData.click_points.forEach(pt => {
+            const x = (pt.x_bucket / 100) * canvas.width;
+            const y = (pt.y_bucket / 100) * canvas.height;
+            const radius = Math.min(50, 14 + pt.clicks * 4);
+
+            const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            grad.addColorStop(0, 'rgba(239, 68, 68, 0.95)');
+            grad.addColorStop(0.35, 'rgba(245, 158, 11, 0.7)');
+            grad.addColorStop(0.7, 'rgba(59, 130, 246, 0.35)');
+            grad.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.beginPath();
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+
+        // 2. Draw Scroll Depth Horizontal Guides
+        if (showScroll && currentHeatmapData.scroll_depth) {
+          const sd = currentHeatmapData.scroll_depth;
+          const depths = [
+            { pct: 0.25, val: sd.pct_reached_25 || 0, label: '25% Depth', color: '#10b981' },
+            { pct: 0.50, val: sd.pct_reached_50 || 0, label: '50% Depth', color: '#06b6d4' },
+            { pct: 0.75, val: sd.pct_reached_75 || 0, label: '75% Depth', color: '#f59e0b' },
+            { pct: 1.00, val: sd.pct_reached_100 || 0, label: '100% Depth', color: '#ef4444' }
+          ];
+
+          ctx.save();
+          depths.forEach(d => {
+            const y = Math.min(canvas.height - 2, Math.max(2, d.pct * canvas.height));
+
+            ctx.strokeStyle = d.color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 6]);
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(24, 24, 27, 0.92)';
+            const text = d.label + ' — ' + d.val + '% visitors';
+            ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+            const textWidth = ctx.measureText(text).width;
+            const badgeX = canvas.width - textWidth - 28;
+            const badgeY = Math.max(20, y - 8);
+
+            ctx.fillRect(badgeX, badgeY - 14, textWidth + 18, 22);
+            ctx.strokeStyle = d.color;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(badgeX, badgeY - 14, textWidth + 18, 22);
+
+            ctx.fillStyle = d.color;
+            ctx.fillText(text, badgeX + 9, badgeY + 1);
+          });
+          ctx.restore();
+        }
+
+        ctx.globalAlpha = 1.0;
+      }
+
+      // Interactive mouse tooltip
+      const heatmapCanvasEl = document.getElementById('heatmapCanvas');
+      const heatmapTooltipEl = document.getElementById('heatmapTooltip');
+
+      heatmapCanvasEl.addEventListener('mousemove', (e) => {
+        if (!currentHeatmapData || !currentHeatmapData.has_enough_data || !currentHeatmapData.click_points) {
+          heatmapTooltipEl.style.display = 'none';
+          return;
+        }
+        const rect = heatmapCanvasEl.getBoundingClientRect();
+        const scaleX = heatmapCanvasEl.width / rect.width;
+        const scaleY = heatmapCanvasEl.height / rect.height;
+        const mx = (e.clientX - rect.left) * scaleX;
+        const my = (e.clientY - rect.top) * scaleY;
+
+        let nearest = null;
+        let minDist = 40;
+        for (const pt of currentHeatmapData.click_points) {
+          const px = (pt.x_bucket / 100) * heatmapCanvasEl.width;
+          const py = (pt.y_bucket / 100) * heatmapCanvasEl.height;
+          const dist = Math.hypot(mx - px, my - py);
+          if (dist < minDist) {
+            minDist = dist;
+            nearest = pt;
+          }
+        }
+
+        if (nearest) {
+          heatmapTooltipEl.style.display = 'block';
+          const container = document.getElementById('heatmapCanvasContainer');
+          const containerRect = container.getBoundingClientRect();
+          heatmapTooltipEl.style.left = (e.clientX - containerRect.left + container.scrollLeft) + 'px';
+          heatmapTooltipEl.style.top = (e.clientY - containerRect.top + container.scrollTop) + 'px';
+          heatmapTooltipEl.innerHTML = '<strong>' + nearest.clicks + ' click' + (nearest.clicks > 1 ? 's' : '') + '</strong> at (' + nearest.x_bucket + '%, ' + nearest.y_bucket + '%)';
+        } else {
+          heatmapTooltipEl.style.display = 'none';
+        }
+      });
+
+      heatmapCanvasEl.addEventListener('mouseleave', () => {
+        heatmapTooltipEl.style.display = 'none';
+      });
+
+      // Viewport switching
+      function setViewport(vp) {
+        const container = document.getElementById('heatmapCanvasContainer');
+        document.querySelectorAll('.viewport-btn').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-vp') === vp);
+        });
+        if (vp === 'mobile') {
+          container.style.maxWidth = '375px';
+        } else if (vp === 'tablet') {
+          container.style.maxWidth = '768px';
+        } else {
+          container.style.maxWidth = '1200px';
+        }
+
+        setTimeout(() => {
+          const iframe = document.getElementById('previewIframe');
+          const canvas = document.getElementById('heatmapCanvas');
+          canvas.width = iframe.offsetWidth || 1000;
+          drawHeatmap();
+        }, 220);
+      }
+
+      document.getElementById('vpDesktopBtn').onclick = () => setViewport('desktop');
+      document.getElementById('vpTabletBtn').onclick = () => setViewport('tablet');
+      document.getElementById('vpMobileBtn').onclick = () => setViewport('mobile');
+
+      // Heatmap Controls
+      const opacitySlider = document.getElementById('heatmapOpacitySlider');
+      opacitySlider.oninput = () => {
+        document.getElementById('heatmapOpacityVal').textContent = Math.round(opacitySlider.value * 100) + '%';
+        drawHeatmap();
+      };
+      document.getElementById('heatmapShowClicks').onchange = () => drawHeatmap();
+      document.getElementById('heatmapShowScroll').onchange = () => drawHeatmap();
+      document.getElementById('heatmapPreviewMode').onchange = () => {
+        if (selectedHeatmapPath) {
+          const site = currentSites.find(s => s.id === selectedSiteId);
+          const domain = (site ? site.domain : '') || currentHeatmapDomain;
+          let targetOrigin = domain;
+          if (!targetOrigin.startsWith('http://') && !targetOrigin.startsWith('https://')) {
+            targetOrigin = 'https://' + targetOrigin;
+          }
+          targetOrigin = targetOrigin.replace(/\/+$/, '');
+          const cleanPath = selectedHeatmapPath.startsWith('/') ? selectedHeatmapPath : '/' + selectedHeatmapPath;
+          loadIframePreview(targetOrigin + cleanPath, selectedHeatmapPath);
+        }
+      };
+      document.getElementById('heatmapReloadBtn').onclick = () => {
+        loadHeatmaps(selectedHeatmapPath);
+      };
+      document.getElementById('heatmapPageSelect').onchange = () => {
+        selectedHeatmapPath = document.getElementById('heatmapPageSelect').value;
+        const days = parseInt(dateRangeSelect.value, 10);
+        const to = new Date().toISOString().slice(0, 10);
+        const from = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+        fetchAndRenderHeatmap(selectedHeatmapPath, from, to);
       };
 
       function formatSuppressed(val) {

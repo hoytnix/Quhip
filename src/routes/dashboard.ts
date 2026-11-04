@@ -7,7 +7,10 @@ export const dashboardRouter = new Hono<{ Bindings: Env; Variables: { ownerId: s
 // Auth middleware for all dashboard routes
 dashboardRouter.use('/api/dashboard/*', async (c, next) => {
   const authHeader = c.req.header('authorization');
-  const token = authHeader?.replace(/^Bearer\s+/i, '');
+  let token = authHeader?.replace(/^Bearer\s+/i, '');
+  if (!token) {
+    token = c.req.query('token') || undefined;
+  }
   const ownerId = await authenticateToken(c.env.DB, token);
   if (!ownerId) {
     return c.json({ error: 'Unauthorized. Owner authentication required.' }, 401);
@@ -335,6 +338,55 @@ dashboardRouter.get('/api/dashboard/elements', async (c) => {
   return c.json({ elements });
 });
 
+// Heatmaps Pages Directory (§7)
+dashboardRouter.get('/api/dashboard/heatmaps/pages', async (c) => {
+  const ownerId = c.get('ownerId');
+  const siteId = c.req.query('site_id');
+  const from = c.req.query('from') || new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+  const to = c.req.query('to') || new Date().toISOString().slice(0, 10);
+
+  if (!siteId) return c.json({ error: 'site_id is required' }, 400);
+
+  const site = await c.env.DB.prepare(
+    `SELECT id, domain FROM sites WHERE id = ? AND owner_id = ?`
+  ).bind(siteId, ownerId).first<{ id: string; domain: string }>();
+  if (!site) return c.json({ error: 'Site not found' }, 404);
+
+  const pagesRows = await c.env.DB.prepare(
+    `SELECT p.path,
+            SUM(p.sessions) as sessions,
+            SUM(p.pageviews) as pageviews,
+            COALESCE(h.total_clicks, 0) as heatmap_clicks
+     FROM agg_daily_page p
+     LEFT JOIN (
+       SELECT path, SUM(clicks) as total_clicks
+       FROM agg_daily_heatmap
+       WHERE site_id = ? AND date >= ? AND date <= ?
+       GROUP BY path
+     ) h ON p.path = h.path
+     WHERE p.site_id = ? AND p.date >= ? AND p.date <= ?
+     GROUP BY p.path
+     ORDER BY p.pageviews DESC`
+  ).bind(siteId, from, to, siteId, from, to).all<any>();
+
+  const pages = (pagesRows.results || []).map(r => {
+    const s = r.sessions || 0;
+    return {
+      path: r.path,
+      pageviews: r.pageviews || 0,
+      sessions: s < 5 ? 'not enough data' : s,
+      raw_sessions: s,
+      heatmap_clicks: r.heatmap_clicks || 0,
+      has_enough_data: s >= 5
+    };
+  });
+
+  return c.json({
+    domain: site.domain,
+    pages
+  });
+});
+
 // Heatmaps (§7)
 dashboardRouter.get('/api/dashboard/heatmaps', async (c) => {
   const ownerId = c.get('ownerId');
@@ -347,8 +399,8 @@ dashboardRouter.get('/api/dashboard/heatmaps', async (c) => {
 
   // Validate site ownership
   const site = await c.env.DB.prepare(
-    `SELECT id FROM sites WHERE id = ? AND owner_id = ?`
-  ).bind(siteId, ownerId).first();
+    `SELECT id, domain FROM sites WHERE id = ? AND owner_id = ?`
+  ).bind(siteId, ownerId).first<{ id: string; domain: string }>();
   if (!site) return c.json({ error: 'Site not found' }, 404);
 
   // Minimum-count check (§7: do not render heatmap from fewer than 5 sessions — show "not enough data")
@@ -363,7 +415,9 @@ dashboardRouter.get('/api/dashboard/heatmaps', async (c) => {
       has_enough_data: false,
       message: 'not enough data',
       sessions: totalSessions,
-      min_sessions: 5
+      min_sessions: 5,
+      path,
+      domain: site.domain
     });
   }
 
@@ -399,8 +453,149 @@ dashboardRouter.get('/api/dashboard/heatmaps', async (c) => {
   return c.json({
     has_enough_data: true,
     sessions: totalSessions,
+    min_sessions: 5,
+    path,
+    domain: site.domain,
     click_points: clickRows.results || [],
     scroll_depth: scrollDepth
+  });
+});
+
+// Live Page Preview Proxy for Heatmap Overlay (§7)
+dashboardRouter.get('/api/dashboard/preview', async (c) => {
+  const ownerId = c.get('ownerId');
+  const siteId = c.req.query('site_id');
+  const path = c.req.query('path') || '/';
+
+  if (!siteId) return c.text('site_id is required', 400);
+
+  const site = await c.env.DB.prepare(
+    `SELECT id, domain FROM sites WHERE id = ? AND owner_id = ?`
+  ).bind(siteId, ownerId).first<{ id: string; domain: string }>();
+  if (!site) return c.text('Site not found', 404);
+
+  let targetOrigin = (site.domain || '').trim();
+  if (!targetOrigin.startsWith('http://') && !targetOrigin.startsWith('https://')) {
+    targetOrigin = 'https://' + targetOrigin;
+  }
+  targetOrigin = targetOrigin.replace(/\/+$/, '');
+  const cleanPath = path.startsWith('/') ? path : '/' + path;
+  const targetUrl = `${targetOrigin}${cleanPath}`;
+
+  let html = '';
+  let fetchError = '';
+
+  try {
+    const resp = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 QuhipPreview/1.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      },
+      redirect: 'follow'
+    });
+
+    if (resp.ok) {
+      html = await resp.text();
+    } else {
+      if (targetOrigin.startsWith('https://') && !site.domain.startsWith('https://')) {
+        const httpUrl = `http://${site.domain.replace(/^https?:\/\//, '').replace(/\/+$/, '')}${cleanPath}`;
+        try {
+          const httpResp = await fetch(httpUrl, { redirect: 'follow' });
+          if (httpResp.ok) {
+            html = await httpResp.text();
+            targetOrigin = `http://${site.domain.replace(/^https?:\/\//, '').replace(/\/+$/, '')}`;
+          } else {
+            fetchError = `Target server returned HTTP ${resp.status}`;
+          }
+        } catch {
+          fetchError = `Target server returned HTTP ${resp.status}`;
+        }
+      } else {
+        fetchError = `Target server returned HTTP ${resp.status}`;
+      }
+    }
+  } catch (err: any) {
+    fetchError = err?.message || 'Network request failed';
+  }
+
+  if (fetchError || !html) {
+    const errorPage = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Preview Unavailable - ${cleanPath}</title>
+  <style>
+    body {
+      margin: 0; padding: 48px 24px; font-family: system-ui, -apple-system, sans-serif;
+      background: #09090b; color: #a1a1aa; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; min-height: 80vh; text-align: center;
+    }
+    .card {
+      background: #18181b; border: 1px solid #27272a; border-radius: 12px;
+      padding: 32px; max-width: 520px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    h3 { color: #f4f4f5; margin-top: 0; font-size: 18px; margin-bottom: 12px; }
+    p { font-size: 14px; line-height: 1.6; margin: 8px 0; }
+    code { color: #60a5fa; background: #27272a; padding: 3px 6px; border-radius: 4px; font-size: 12px; word-break: break-all; }
+    .btn {
+      display: inline-block; margin-top: 20px; padding: 9px 16px; background: #2563eb;
+      color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500;
+    }
+    .hint {
+      margin-top: 18px; padding-top: 14px; border-top: 1px solid #27272a; font-size: 12px; color: #71717a; text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size: 36px; margin-bottom: 10px;">🌐</div>
+    <h3>Live Proxy Preview Unavailable</h3>
+    <p>Could not fetch target page: <code>${targetUrl}</code></p>
+    <p style="color: #ef4444; font-size: 13px;">Error: ${fetchError || 'Empty response'}</p>
+    <div class="hint">
+      <strong>Pro Tip:</strong> If your website runs on a local dev server (e.g. <code>localhost</code>) or inside an intranet, Cloudflare Workers cannot reach it directly. Switch the preview dropdown above to <strong>Direct Iframe</strong> mode or <strong>Dark Canvas</strong> mode.
+    </div>
+    <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="btn">Open ${cleanPath} in New Tab ↗</a>
+  </div>
+</body>
+</html>`;
+    return new Response(errorPage, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store'
+      }
+    });
+  }
+
+  const baseTag = `<base href="${targetOrigin}${cleanPath}">`;
+  const overridesStyle = `
+<style id="quhip-preview-overrides">
+  a, button, input[type="submit"], [role="button"] {
+    cursor: default !important;
+    pointer-events: none !important;
+  }
+  html, body {
+    overflow-x: hidden !important;
+  }
+</style>`;
+
+  let modifiedHtml = html.replace(/<base[^>]*>/gi, '');
+  if (/<head>/i.test(modifiedHtml)) {
+    modifiedHtml = modifiedHtml.replace(/<head>/i, `<head>${baseTag}${overridesStyle}`);
+  } else if (/<html>/i.test(modifiedHtml)) {
+    modifiedHtml = modifiedHtml.replace(/<html>/i, `<html><head>${baseTag}${overridesStyle}</head>`);
+  } else {
+    modifiedHtml = `${baseTag}${overridesStyle}${modifiedHtml}`;
+  }
+
+  return new Response(modifiedHtml, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'private, max-age=60',
+      'Content-Security-Policy': "frame-ancestors 'self' *"
+    }
   });
 });
 

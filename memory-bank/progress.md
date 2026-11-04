@@ -11,10 +11,15 @@
 - [x] Step 8: Optional consent-banner module with dynamic auto-discovery.
 - [x] Step 9: Dashboard polish: multi-site management, filters, date ranges, "not enough data" states.
 - [x] Step 10: Dogfood verification, privacy audit, synthetic metric tests.
-- [x] Repository Hygiene: Sane `.gitignore`, Kopimi LICENSE, Cloudflare Workers deploy badge, compressed Memory Bank.
+- [x] Step 11: Per-Page Heatmaps with Live Page Preview:
+  - Page selection directory (`/api/dashboard/heatmaps/pages`) and per-page metrics.
+  - Live page preview proxy (`/api/dashboard/preview`) stripping frame blockers and injecting `<base>`.
+  - Visual simulated browser frame in the dashboard UI with live iframe underlay, canvas overlay, interactive tooltips, opacity control, and viewport toggle.
+- [x] Repository Hygiene: Sane `.gitignore`, Kopimi LICENSE, Cloudflare Workers deploy badge, remote origin configured and pushed to GitHub (`hoytnix/Quhip:main`).
 
 ## Verification Summary
+- **Test Suite**: 9 test suites, 25 tests passing (`pnpm test`).
 - **Snippet Bundle Size**: 4.18 KB gzipped (Budget: < 10 KB).
-- **Overhead**: ~0.83 ms execution latency per page load.
-- **Privacy Audit**: 0 cookie calls, 0 fingerprinting APIs, 0 IP columns, 0 Google Analytics code.
-- **Metric Math**: Verified exact session calculations, bounce rates, element-view CTR denominator, and suppression (< 5 sessions).
+- **Overhead**: ~0.82 ms execution latency per page load.
+- **Privacy Audit**: 0 cookie calls, 0 fingerprinting APIs, 0 IP columns, small-count suppression (< 5 sessions) enforced on all pages.
+- **Metric Math**: Verified exact session calculations, bounce rates, element-view CTR denominator, per-page heatmap clicks, and preview proxying.
