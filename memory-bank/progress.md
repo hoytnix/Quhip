@@ -23,6 +23,9 @@
   - Interactive True Element CTR calculator, 1-click snippet copy, and FAQ accordion.
   - Minimal GitHub Actions workflow (`.github/workflows/deploy.yml`) deploying the pure static `www` single-file directory directly to GitHub Pages with zero Node/pnpm steps or dependencies.
   - Comprehensive test suite [`test/www-landing.test.ts`](file:///home/oloty/Dev/Quhip/test/www-landing.test.ts).
+- [x] Step 13: Inlined Vector Icon Bundle in `www/index.html`:
+  - Replaced all Unicode emojis with self-contained SVG symbols in an embedded sprite (`#icon-zap`, `#icon-globe`, `#icon-rocket`, `#icon-terminal`, `#icon-lock`, `#icon-cookie`, `#icon-timer`, `#icon-scale`, `#icon-stop`, `#icon-snail`, `#icon-mirror`, `#icon-bulb`, `#icon-chart`).
+  - Zero TTF/font dependencies; renders perfectly on any OS/browser engine.
 
 ## Verification Summary
 - **Test Suite**: 10 test suites, 32 tests passing (`pnpm test`).

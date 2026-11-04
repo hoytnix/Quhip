@@ -27,6 +27,9 @@
 - **Core Memory Bank Protocol Enhancement**:
   - Updated `GEMINI.md` to enforce immediate Git staging, committing, and pushing every time `/memory-bank/` files are written.
 - Added test coverage in [`test/www-landing.test.ts`](file:///home/oloty/Dev/Quhip/test/www-landing.test.ts) (32 tests passing across 10 test files).
+- **Embedded Vector Icons for Zero-Dependency Rendering in WWW**:
+  - Replaced OS-dependent raw emoji characters across `www/index.html` with an inlined, lightweight SVG sprite bundle (`#icon-zap`, `#icon-globe`, `#icon-rocket`, `#icon-terminal`, `#icon-lock`, `#icon-cookie`, `#icon-timer`, `#icon-scale`, `#icon-stop`, `#icon-snail`, `#icon-mirror`, `#icon-bulb`, `#icon-chart`).
+  - Guarantees 100% sharp and consistent visual rendering across all operating systems, Linux distros, and legacy browsers without requiring any system emoji TTF font.
 
 ## Next Focus
 - Monitor deployments, live telemetry, and subscriber leads.

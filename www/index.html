@@ -860,12 +860,138 @@
       .proof-bar { gap: 16px; }
       .section-title { font-size: 26px; }
     }
+
+    /* Embedded Vector Icon Styling */
+    .icon {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      vertical-align: -0.15em;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+    .icon-stroke {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .agitate-icon .icon, .agitate-icon .icon-stroke {
+      width: 30px;
+      height: 30px;
+      vertical-align: middle;
+    }
   </style>
 
   <!-- Dogfood: Quhip Tracks Its Own Website -->
   <script defer src="/quhip.js" data-site="qhp_quhip_www"></script>
 </head>
 <body>
+
+  <!-- ==========================================================================
+       EMBEDDED VECTOR ICON SPRITE — Bundled inline, 0 dependencies, 100% OS independent
+       ========================================================================== -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <defs>
+      <!-- Lightning (Zap) -->
+      <symbol id="icon-zap" viewBox="0 0 24 24">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor"/>
+      </symbol>
+
+      <!-- Globe -->
+      <symbol id="icon-globe" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+        <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="2"/>
+      </symbol>
+
+      <!-- Rocket -->
+      <symbol id="icon-rocket" viewBox="0 0 24 24">
+        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" fill="currentColor"/>
+        <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" fill="currentColor"/>
+        <path d="M9 12H4s.55-3.03 2-4.5c1.2-1.2 3-1.5 3-1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 15v5s3.03-.55 4.5-2c1.2-1.2 1.5-3 1.5-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </symbol>
+
+      <!-- Terminal / Laptop -->
+      <symbol id="icon-terminal" viewBox="0 0 24 24">
+        <rect x="2" y="4" width="20" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+        <polyline points="6 8 10 10.5 6 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="12" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="2" y1="20" x2="22" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </symbol>
+
+      <!-- Lock -->
+      <symbol id="icon-lock" viewBox="0 0 24 24">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </symbol>
+
+      <!-- Cookie -->
+      <symbol id="icon-cookie" viewBox="0 0 24 24">
+        <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5z" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/>
+        <circle cx="7" cy="15" r="1.2" fill="currentColor"/>
+        <circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+        <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/>
+      </symbol>
+
+      <!-- Timer / Stopwatch -->
+      <symbol id="icon-timer" viewBox="0 0 24 24">
+        <line x1="10" y1="2" x2="14" y2="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="12" y1="14" x2="15" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+      </symbol>
+
+      <!-- Scale / Balance -->
+      <symbol id="icon-scale" viewBox="0 0 24 24">
+        <line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <polygon points="4 7 1 14 7 14 4 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <polygon points="20 7 17 14 23 14 20 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </symbol>
+
+      <!-- Stop / Octagon Shield -->
+      <symbol id="icon-stop" viewBox="0 0 24 24">
+        <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" fill="currentColor"/>
+        <line x1="7" y1="12" x2="17" y2="12" stroke="#09090b" stroke-width="2.5" stroke-linecap="round"/>
+      </symbol>
+
+      <!-- Snail -->
+      <symbol id="icon-snail" viewBox="0 0 24 24">
+        <circle cx="15" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M15 14a3 3 0 1 0-3-3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M2 19c2-2 4-2 7-2h6a6 6 0 0 0 6-6c0-2-1.5-3.5-3.5-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="4" cy="12" r="1" fill="currentColor"/>
+        <line x1="3" y1="16" x2="4" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+
+      <!-- Mirror -->
+      <symbol id="icon-mirror" viewBox="0 0 24 24">
+        <ellipse cx="12" cy="10" rx="7" ry="8" fill="none" stroke="currentColor" stroke-width="2"/>
+        <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="8.5" y1="22" x2="15.5" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M10 7a4 5 0 0 1 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+
+      <!-- Lightbulb -->
+      <symbol id="icon-bulb" viewBox="0 0 24 24">
+        <path d="M9 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M10 21h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.3 4.7 3.3 6h7.4c2-1.3 3.3-3.5 3.3-6a7 7 0 0 0-7-7z" fill="none" stroke="currentColor" stroke-width="2"/>
+      </symbol>
+
+      <!-- Chart / Bar Graph -->
+      <symbol id="icon-chart" viewBox="0 0 24 24">
+        <line x1="18" y1="20" x2="18" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="12" y1="20" x2="12" y2="4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="6" y1="20" x2="6" y2="14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="3" y1="21" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+  </svg>
 
   <div class="glow-bg"></div>
 
@@ -914,7 +1040,7 @@
         <div class="deploy-header">
           <div>
             <div class="deploy-title">
-              <span>⚡</span> 1-Click Deploy Tutorial (Zero Setup Overhead)
+              <span><svg class="icon" style="color:var(--accent-amber);"><use href="#icon-zap"/></svg></span> 1-Click Deploy Tutorial (Zero Setup Overhead)
             </div>
             <p class="deploy-desc">
               Get your own private edge analytics engine with SQLite D1 rollups and live heatmaps. Runs completely free on Cloudflare's 100k requests/day tier.
@@ -928,7 +1054,7 @@
           <div class="deploy-card">
             <div>
               <div class="deploy-card-title">
-                <span>🌐</span> Method 1: Browser 1-Click Deploy
+                <span><svg class="icon" style="color:var(--accent-blue);"><use href="#icon-globe"/></svg></span> Method 1: Browser 1-Click Deploy
               </div>
               <p class="deploy-card-text">
                 Deploy directly into your Cloudflare account with a single click. Cloudflare clones the repo, provisions your D1 database, and provides your live dashboard URL automatically.
@@ -936,7 +1062,7 @@
             </div>
             <div class="deploy-btn-wrapper">
               <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/hoytnix/Quhip" target="_blank" rel="noopener" class="btn btn-emerald" style="width: 100%; text-align: center;" data-quhip="hero-1click-cf-btn">
-                🚀 Deploy to Cloudflare Workers
+                <svg class="icon"><use href="#icon-rocket"/></svg> Deploy to Cloudflare Workers
               </a>
             </div>
           </div>
@@ -945,7 +1071,7 @@
           <div class="deploy-card">
             <div>
               <div class="deploy-card-title">
-                <span>💻</span> Method 2: CLI in 3 Quick Commands
+                <span><svg class="icon" style="color:var(--accent-emerald);"><use href="#icon-terminal"/></svg></span> Method 2: CLI in 3 Quick Commands
               </div>
               <p class="deploy-card-text">
                 Prefer local control? Clone the repo, install dependencies, and deploy using Wrangler in seconds:
@@ -961,17 +1087,17 @@
         </div>
 
         <div class="deploy-footer-note">
-          <span>🔒</span> 100% self-hosted on your Cloudflare account. Zero external servers. CC0 Public Domain.
+          <span><svg class="icon" style="color:var(--accent-emerald);"><use href="#icon-lock"/></svg></span> 100% self-hosted on your Cloudflare account. Zero external servers. CC0 Public Domain.
         </div>
       </div>
 
       <!-- HARD PROOF BAR -->
       <div class="proof-bar">
-        <div class="proof-item"><span>⚡ 4.18 KB</span> Gzip Snippet</div>
-        <div class="proof-item"><span>🍪 0</span> Tracking Cookies</div>
-        <div class="proof-item"><span>⏱️ 0.82 ms</span> Execution Time</div>
-        <div class="proof-item"><span>🌐 300+ Cities</span> Edge D1 Rollup</div>
-        <div class="proof-item"><span>⚖️ 100%</span> CC0 Public Domain</div>
+        <div class="proof-item"><span><svg class="icon" style="color:var(--accent-amber);"><use href="#icon-zap"/></svg> 4.18 KB</span> Gzip Snippet</div>
+        <div class="proof-item"><span><svg class="icon" style="color:#d97706;"><use href="#icon-cookie"/></svg> 0</span> Tracking Cookies</div>
+        <div class="proof-item"><span><svg class="icon" style="color:var(--accent-blue);"><use href="#icon-timer"/></svg> 0.82 ms</span> Execution Time</div>
+        <div class="proof-item"><span><svg class="icon" style="color:var(--accent-emerald);"><use href="#icon-globe"/></svg> 300+ Cities</span> Edge D1 Rollup</div>
+        <div class="proof-item"><span><svg class="icon" style="color:var(--accent-purple);"><use href="#icon-scale"/></svg> 100%</span> CC0 Public Domain</div>
       </div>
 
       <!-- ONE-LINE CODE SNIPPET -->
@@ -997,7 +1123,7 @@
 
       <div class="agitate-grid">
         <div class="agitate-card">
-          <div class="agitate-icon">🛑</div>
+          <div class="agitate-icon" style="color:var(--accent-rose);"><svg class="icon"><use href="#icon-stop"/></svg></div>
           <h3 class="agitate-title">The 65% Cookie Bounce</h3>
           <p class="agitate-desc">
             When a visitor lands on your page and gets ambushed by a giant cookie consent modal, up to 65% bounce or reject all tracking. You are flying blind on more than half your audience before they even finish your headline.
@@ -1006,7 +1132,7 @@
         </div>
 
         <div class="agitate-card">
-          <div class="agitate-icon">🐌</div>
+          <div class="agitate-icon" style="color:var(--accent-amber);"><svg class="icon"><use href="#icon-snail"/></svg></div>
           <h3 class="agitate-title">The 100 KB Speed Penalty</h3>
           <p class="agitate-desc">
             GA4 and traditional heatmap scripts weigh between 80 KB and 250 KB. They block the main thread, delay First Contentful Paint, drag your Core Web Vitals into the red, and quietly demote your Google search ranking.
@@ -1015,7 +1141,7 @@
         </div>
 
         <div class="agitate-card">
-          <div class="agitate-icon">🪞</div>
+          <div class="agitate-icon" style="color:var(--accent-blue);"><svg class="icon"><use href="#icon-mirror"/></svg></div>
           <h3 class="agitate-title">The "Pageview" Mirage</h3>
           <p class="agitate-desc">
             Standard tools calculate CTR by dividing clicks by total pageviews. But if a visitor never scrolled down far enough to see your pricing button, counting that as a "missed click" is broken, dishonest math.
@@ -1024,7 +1150,7 @@
         </div>
 
         <div class="agitate-card">
-          <div class="agitate-icon">⚖️</div>
+          <div class="agitate-icon" style="color:var(--accent-purple);"><svg class="icon"><use href="#icon-scale"/></svg></div>
           <h3 class="agitate-title">The GDPR Sword of Damocles</h3>
           <p class="agitate-desc">
             Storing visitor IP addresses, setting long-lived cross-site cookies, and syncing ad click identifiers (like gclid and fbclid) turns your clean project into an EU/PECR regulatory liability waiting to happen.
@@ -1151,7 +1277,7 @@
             </div>
 
             <div style="font-size: 13px; color: var(--text-muted); line-height: 1.5; padding-top: 6px;">
-              💡 <strong>The Reality:</strong> In GA4, your button looks like it converted poorly at 2.5%. With Quhip, you see the truth: <strong>1 in 10 visitors who actually saw the button clicked it!</strong> Your copy is converting great; your page layout just buried the button.
+              <svg class="icon" style="color:var(--accent-amber);"><use href="#icon-bulb"/></svg> <strong>The Reality:</strong> In GA4, your button looks like it converted poorly at 2.5%. With Quhip, you see the truth: <strong>1 in 10 visitors who actually saw the button clicked it!</strong> Your copy is converting great; your page layout just buried the button.
             </div>
           </div>
         </div>
@@ -1358,10 +1484,10 @@
       </p>
       <div class="cta-buttons">
         <a href="https://github.com/hoytnix/Quhip" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 16px; padding: 14px 28px;" data-quhip="final-deploy-btn">
-          🚀 Deploy to Cloudflare in 60s
+          <svg class="icon"><use href="#icon-rocket"/></svg> Deploy to Cloudflare in 60s
         </a>
         <a href="/dashboard" class="btn btn-outline" style="font-size: 16px; padding: 14px 24px;" data-quhip="final-demo-btn">
-          📊 Open Live Dashboard Demo
+          <svg class="icon" style="color:var(--accent-blue);"><use href="#icon-chart"/></svg> Open Live Dashboard Demo
         </a>
       </div>
     </div>
