@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "quhip",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-01-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "quhip-db",
+      "database_id": "quhip-local-d1",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

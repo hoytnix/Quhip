@@ -1,0 +1,32 @@
+{
+  "name": "quhip",
+  "version": "1.0.0",
+  "description": "Cookieless, privacy-first web analytics with heatmaps and element CTR on Cloudflare Workers",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run build:snippet && wrangler deploy --dry-run --outdir dist",
+    "build:snippet": "node scripts/build-snippet.js",
+    "dev": "wrangler dev",
+    "db:reset": "wrangler d1 execute quhip-db --local --file=migrations/0000_reset.sql && wrangler d1 execute quhip-db --local --file=migrations/0001_initial_schema.sql && wrangler d1 execute quhip-db --local --file=migrations/0002_seed_local_test.sql",
+    "test": "vitest run"
+  },
+  "packageManager": "pnpm@12.15.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd",
+      "@rolldown/binding-linux-x64-gnu"
+    ]
+  },
+  "dependencies": {
+    "hono": "^4.13.16"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261103.1",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.157.0"
+  }
+}
