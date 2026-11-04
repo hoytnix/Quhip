@@ -21,9 +21,22 @@ jobs:
   test:
     name: Test & Validate
     runs-on: ubuntu-latest
+    outputs:
+      has_cf_secret: ${{ steps.check_secrets.outputs.has_cf_secret }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Check Cloudflare Secrets
+        id: check_secrets
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -n "$CF_TOKEN" ]; then
+            echo "has_cf_secret=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_cf_secret=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -78,7 +91,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     # Only runs when Cloudflare API credentials are configured in repository secrets
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    if: needs.test.outputs.has_cf_secret == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
